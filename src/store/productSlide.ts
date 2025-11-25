@@ -27,8 +27,12 @@ export interface IProduct {
   imageUrl: string;
   createdAt: string;
   status: string | null;
+  story: string | null;
+  color: string | null;
   categoryId: number;
   categoryName: string;
+  collectionId: number;
+  collectionName: string;
   productImages: string[];
   reviews: IReview[];
 }
@@ -82,13 +86,16 @@ export const actionGetProductById = createAsyncThunk(
 // 🟢 CREATE PRODUCT (multipart/form-data)
 export const actionCreateProduct = createAsyncThunk(
   "product/actionCreateProduct",
-  async (formData: FormData, { rejectWithValue }) => {
+  async (formData: FormData, { rejectWithValue, getState }) => {
     try {
+      const state: any = getState();
+      const token = state.auth.infoLogin?.accessToken;
       const response = await request({
         url: `/Product/CreateProduct`,
         method: "POST",
         headers: {
           "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`
         },
         data: formData,
       });
@@ -104,13 +111,16 @@ export const actionEditProduct = createAsyncThunk(
   "product/actionEditProduct",
   async (
     { id, formData }: { id: number; formData: FormData },
-    { rejectWithValue }
+    { rejectWithValue, getState }
   ) => {
     try {
+      const state: any = getState();
+      const token = state.auth.infoLogin?.accessToken;
       const response = await request({
-        url: `/Product/EditProduct?productId=${id}`,
+        url: `/Product/EditProduct/${id}`,
         method: "PUT",
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
         data: formData,
@@ -122,14 +132,47 @@ export const actionEditProduct = createAsyncThunk(
   }
 );
 
+// 🟢 UPDATE PRODUCT STOCK
+export const actionUpdateProductStock = createAsyncThunk<
+  { productId: number; stockQuantity: number },
+  { productId: number; stockQuantity: number },
+  { state: RootState; rejectValue: string }
+>(
+  "product/actionUpdateProductStock",
+  async ({ productId, stockQuantity }, { rejectWithValue, getState }) => {
+    try {
+      const state: any = getState();
+      const token = state.auth.infoLogin?.accessToken;
+      const response = await request({
+        url: `/Product/UpdateProductStock/${productId}/update-stock`,
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: { stockQuantity },
+      });
+
+      return { productId, stockQuantity: response.data.stockQuantity };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || "Cập nhật stock thất bại");
+    }
+  }
+);
+
+
 // 🟢 DELETE PRODUCT
 export const actionDeleteProduct = createAsyncThunk(
   "product/actionDeleteProduct",
-  async (id: number, { rejectWithValue }) => {
+  async (id: number, { rejectWithValue, getState }) => {
     try {
+      const state: any = getState();
+      const token = state.auth.infoLogin?.accessToken;
       await request({
         url: `/Product/DeleteProduct?productId=${id}`,
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       return id;
     } catch (error) {
@@ -201,6 +244,23 @@ export const slice = createSlice({
         state.error = (action.payload as string) ?? "Không thể cập nhật sản phẩm";
       })
 
+      // Update stock
+      .addCase(actionUpdateProductStock.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(actionUpdateProductStock.fulfilled, (state, action) => {
+        state.loading = false;
+        const { productId, stockQuantity } = action.payload;
+        const index = state.products.findIndex(p => p.productId === productId);
+        if (index !== -1) {
+          state.products[index].stockQuantity = stockQuantity;
+        }
+      })
+      .addCase(actionUpdateProductStock.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
       // Delete
       .addCase(actionDeleteProduct.pending, (state) => {
         state.loading = true;
@@ -221,7 +281,7 @@ export const slice = createSlice({
 export const selectProducts = (state: RootState) => state.product.products;
 export const selectProductDetail = (state: RootState) => state.product.productDetail;
 export const selectProductLoading = (state: RootState) => state.product.loading;
-export const selectDiscountedProducts = (state: RootState) => 
+export const selectDiscountedProducts = (state: RootState) =>
   state.product.products.filter(product => product.discount > 0);
 
 export default slice.reducer;

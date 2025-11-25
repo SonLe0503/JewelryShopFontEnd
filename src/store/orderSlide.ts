@@ -22,6 +22,8 @@ export interface IOrder {
   orderDate: string;
   totalPrice: number;
   status: string;
+  paymentMethod: string;
+  shippingAddress: string;
   orderDetails: IOrderDetail[];
 }
 
@@ -43,7 +45,7 @@ export const actionGetAllOrders = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await request({
-        url: `/api/Order/GetAllOrders`,
+        url: `/Order/GetAllOrders`,
         method: "GET",
       });
       return res.data;
@@ -59,7 +61,7 @@ export const actionGetOrdersByUser = createAsyncThunk(
   async (userId: number, { rejectWithValue }) => {
     try {
       const res = await request({
-        url: `/api/Order/GetOrdersByUser/${userId}`,
+        url: `/Order/GetOrdersByUser/${userId}`,
         method: "GET",
       });
       return res.data;
@@ -77,13 +79,15 @@ export const actionCreateOrder = createAsyncThunk(
       userId: number;
       totalPrice: number;
       status: string;
+      paymentMethod: string;
+      shippingAddress: string;
       orderDetails: { productId: number; quantity: number; unitPrice: number }[];
     },
     { rejectWithValue }
   ) => {
     try {
       const res = await request({
-        url: `/api/Order/CreateOrder`,
+        url: `/Order/CreateOrder`,
         method: "POST",
         data,
       });
@@ -100,7 +104,7 @@ export const actionUpdateOrderStatus = createAsyncThunk(
   async (data: { id: number; status: string }, { rejectWithValue }) => {
     try {
       const res = await request({
-        url: `/api/Order/UpdateOrderStatus/${data.id}`,
+        url: `/Order/UpdateOrderStatus/${data.id}`,
         method: "PATCH",
         data: { status: data.status },
       });
@@ -117,7 +121,7 @@ export const actionDeleteOrder = createAsyncThunk(
   async (orderId: number, { rejectWithValue }) => {
     try {
       await request({
-        url: `/api/Order/DeleteOrder/${orderId}`,
+        url: `/Order/DeleteOrder/${orderId}`,
         method: "DELETE",
       });
       return orderId;

@@ -1,21 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { GoogleOutlined } from "@ant-design/icons";
 import { Button, Divider, Form, Input, message, Modal } from "antd";
 import { useNavigate } from "react-router-dom";
 import URL from "../../../constrants/url";
 import { useAppDispatch } from "../../../store";
-import { actionLogin } from "../../../store/authSlide";
-import { useEffect } from "react";
+import { actionGoogleLogin, actionLogin } from "../../../store/authSlide";
+// import { useEffect } from "react";
 import { EUserRole } from "../../../interface/app";
 import { jwtDecode } from "jwt-decode";
 import { useSelector } from "react-redux";
 import { selectOpenLogin, setOpenLogin } from "../../../store/uiSlide";
+import { GoogleLogin } from "@react-oauth/google";
+import { useState } from "react";
 
 const Login = () => {
   const dispatch = useAppDispatch();
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const openLogin = useSelector(selectOpenLogin);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const onFinish = async (values: any) => {
     try {
@@ -30,31 +32,62 @@ const Login = () => {
         const role = decoded["role"];
 
         if (role === EUserRole.ADMIN) {
-          navigate(URL.ManageProduct);
+          navigate(URL.Dashboard);
         } else if (role === EUserRole.CUSTOMER) {
           navigate(URL.Home);
         } else {
           navigate(URL.Home);
         }
       } else {
-        message.error("Đăng nhập thất bại");
+        alert("Đăng nhập thất bại");
       }
     } catch (error: any) {
-      message.error(error?.message || "Đăng nhập thất bại");
+      alert(error?.message || "Đăng nhập thất bại");
     }
   };
 
-  useEffect(() => {
-    if (!openLogin) {
-      form.resetFields();
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    if (isGoogleLoading) return;
+    setIsGoogleLoading(true);
+    try {
+      const id_token = credentialResponse.credential;
+      const res: any = await dispatch(actionGoogleLogin(id_token)).unwrap();
+
+      const token = res?.data?.token;
+      if (!token) {
+        alert("Đăng nhập Google thất bại");
+        return;
+      }
+
+      alert("Đăng nhập bằng Google thành công");
+      dispatch(setOpenLogin(false));
+
+      const decoded: any = jwtDecode(token);
+      const role = decoded["role"];
+
+      if (role === EUserRole.ADMIN) {
+        navigate(URL.Dashboard);
+      } else {
+        navigate(URL.Home);
+      }
+    } catch (error: any) {
+      console.error(error);
+      alert("Đăng nhập Google thất bại");
     }
-  }, [openLogin, form]);
+  };
+
+
+  const handleGoogleError = () => {
+    alert("Không thể đăng nhập bằng Google");
+  };
 
   return (
     <>
       <Modal
         open={openLogin}
         onCancel={() => dispatch(setOpenLogin(false))}
+        afterClose={() => form.resetFields()}
         footer={null}
         width={400}
         closable
@@ -94,7 +127,10 @@ const Login = () => {
         </Form>
 
         <div className="mt-3 mb-5">
-          <div className="text-sm text-gray-400 text-center">
+          <div className="text-sm text-gray-400 text-center cursor-pointer" onClick={() => {
+            navigate(URL.ForgotPassword),
+              dispatch(setOpenLogin(false))
+          }}>
             Quên mật khẩu?
           </div>
         </div>
@@ -103,13 +139,13 @@ const Login = () => {
           hoặc tiếp tục với
         </Divider>
 
-        <Button
-          block
-          icon={<GoogleOutlined />}
-          className="mb-5 !border-black text-black"
-        >
-          Google
-        </Button>
+        <div className="flex justify-center mb-5">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={handleGoogleError}
+            // useOneTap
+          />
+        </div>
 
         {/* --- SIGNUP SECTION --- */}
         <div className="border-t border-gray-200 pt-5">

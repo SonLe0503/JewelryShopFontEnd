@@ -8,6 +8,7 @@ import { useDispatch, useSelector, type TypedUseSelectorHook } from "react-redux
 import authSlide from "./authSlide";
 import cartSlice from "./cartSlide";
 import categorySlice  from "./categorySlide";
+import collectionSlice from "./collectionSlide";
 import orderDetailSlice from "./orderDetailSlide";
 import orderSlice from "./orderSlide";
 import paymentTransactionSlice from "./paymentTransactionSlide";
@@ -16,6 +17,7 @@ import productSlice from "./productSlide";
 import replySlice from "./replySlide";
 import reviewSlice from "./reviewSlide";
 import uiSlice from "./uiSlide";
+import wishlistSlice from "./wishlistSlide";
 const persistConfig = {
   key: "auth",
   storage,
@@ -26,6 +28,7 @@ const reducers = {
   auth: persistReducer(persistConfig, authSlide),
   product: productSlice,
   category: categorySlice,
+  collection: collectionSlice,
   cart: cartSlice,
   order: orderSlice,
   orderDetail: orderDetailSlice,
@@ -34,6 +37,7 @@ const reducers = {
   review: reviewSlice,
   reply: replySlice,
   ui: uiSlice,
+  wishlist: wishlistSlice
 };
 
 const rootReducer = combineReducers(reducers);

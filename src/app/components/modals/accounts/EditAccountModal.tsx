@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Form, Input, DatePicker, Select, message } from "antd";
+import { Form, Input, Select, message } from "antd";
 import dayjs from "dayjs";
 import { useEffect } from "react";
 import BaseModal from "../BaseModal";
@@ -67,9 +67,9 @@ const EditAccountModal = ({
         <Form.Item name="phoneNumber" label="Số điện thoại">
           <Input placeholder="Nhập số điện thoại" />
         </Form.Item>
-        <Form.Item name="dob" label="Ngày sinh">
+        {/* <Form.Item name="dob" label="Ngày sinh">
           <DatePicker className="w-full" format="DD/MM/YYYY" />
-        </Form.Item>
+        </Form.Item> */}
         <Form.Item name="status" label="Trạng thái">
           <Select>
             <Select.Option value="active">Active</Select.Option>

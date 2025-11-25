@@ -32,11 +32,16 @@ const initialState: ICartState = {
 // ✅ Lấy giỏ hàng theo userId
 export const actionGetCartByUser = createAsyncThunk(
   "cart/getByUser",
-  async (userId: number, { rejectWithValue }) => {
+  async (userId: number, { rejectWithValue, getState }) => {
     try {
+      const state: any = getState();
+      const token = state.auth.infoLogin?.accessToken;
       const res = await request({
-        url: `/api/Cart/GetCartByUser/${userId}`,
+        url: `/Cart/GetCartByUser/${userId}`,
         method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       return res.data;
     } catch (err: any) {
@@ -46,31 +51,48 @@ export const actionGetCartByUser = createAsyncThunk(
 );
 
 // ✅ Thêm sản phẩm vào giỏ hàng
-export const actionAddToCart = createAsyncThunk(
-  "cart/addToCart",
-  async (data: { userId: number; productId: number; quantity: number }, { rejectWithValue }) => {
+export const actionAddOrUpdateCart = createAsyncThunk(
+  "cart/addOrUpdate",
+  async (
+    data: { userId: number; productId: number; quantity: number; stockQuantity: number },
+    { rejectWithValue, getState }
+  ) => {
     try {
+      const state: any = getState();
+      const token = state.auth.infoLogin?.accessToken;
+
+      // Gọi API backend AddOrUpdateCart
       const res = await request({
-        url: `/api/Cart/AddToCart`,
+        url: `/Cart/AddOrUpdateCart`,
         method: "POST",
-        data,
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        data
       });
+
       return res.data.cart;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data || "Lỗi khi thêm vào giỏ hàng");
+      return rejectWithValue(err.response?.data || "Lỗi khi thêm/cập nhật giỏ hàng");
     }
   }
 );
 
+
 // ✅ Cập nhật số lượng sản phẩm
 export const actionUpdateCartQuantity = createAsyncThunk(
   "cart/updateQuantity",
-  async (data: { cartId: number; quantity: number }, { rejectWithValue }) => {
+  async (data: { cartId: number; quantity: number }, { rejectWithValue, getState }) => {
     try {
+      const state: any = getState();
+      const token = state.auth.infoLogin?.accessToken;
       const res = await request({
-        url: `/api/Cart/UpdateCartQuantity`,
+        url: `/Cart/UpdateCartQuantity`,
         method: "PUT",
         data,
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       return res.data.cart;
     } catch (err: any) {
@@ -82,11 +104,16 @@ export const actionUpdateCartQuantity = createAsyncThunk(
 // ✅ Xóa 1 sản phẩm khỏi giỏ hàng
 export const actionRemoveFromCart = createAsyncThunk(
   "cart/removeFromCart",
-  async (cartId: number, { rejectWithValue }) => {
+  async (cartId: number, { rejectWithValue, getState }) => {
     try {
+      const state: any = getState();
+      const token = state.auth.infoLogin?.accessToken;
       await request({
-        url: `/api/Cart/RemoveFromCart/${cartId}`,
+        url: `/Cart/RemoveFromCart/${cartId}`,
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       return cartId;
     } catch (err: any) {
@@ -98,12 +125,17 @@ export const actionRemoveFromCart = createAsyncThunk(
 // ✅ Xóa toàn bộ giỏ hàng
 export const actionClearCart = createAsyncThunk(
   "cart/clearCart",
-  async (userId: number, { rejectWithValue }) => {
+  async (userId: number, { rejectWithValue, getState }) => {
     try {
+      const state: any = getState();
+      const token = state.auth.infoLogin?.accessToken;
       await request({
-        url: `/api/Cart/ClearCart/${userId}`,
+        url: `/Cart/ClearCart/${userId}`,
         method: "DELETE",
-      });
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }); 
       return userId;
     } catch (err: any) {
       return rejectWithValue(err.response?.data || "Lỗi khi xóa toàn bộ giỏ hàng");
@@ -130,7 +162,7 @@ const slice = createSlice({
         state.error = action.payload as string;
       })
       // Add to cart
-      .addCase(actionAddToCart.fulfilled, (state, action) => {
+      .addCase(actionAddOrUpdateCart.fulfilled, (state, action) => {
         const existing = state.carts.find((c) => c.cartId === action.payload.cartId);
         if (existing) {
           existing.quantity = action.payload.quantity;
@@ -139,7 +171,7 @@ const slice = createSlice({
           state.carts.push(action.payload);
         }
       })
-      .addCase(actionAddToCart.rejected, (state, action) => {
+      .addCase(actionAddOrUpdateCart.rejected, (state, action) => {
         state.error = action.payload as string;
       })
       // Update quantity

@@ -8,39 +8,33 @@ interface ConditionProps {
   orderStatus: string[];
 }
 
-const Condition = (props: ConditionProps) => {
-  const {
-    searchUserName,
-    searchStatus,
-    setSearchStatus,
-    setSearchUserName,
-    orderStatus,
-  } = props;
-  const handleChange = (e: string) => {
-    setSearchStatus(e);
-  };
+const Condition = ({
+  searchUserName,
+  setSearchUserName,
+  searchStatus,
+  setSearchStatus,
+  orderStatus,
+}: ConditionProps) => {
   return (
-    <>
-      <div className="flex gap-2 mb-4">
-        <Input
-          type="text"
-          placeholder="Tìm theo tên khách hàng"
-          value={searchUserName}
-          onChange={(e) => setSearchUserName(e.target.value)}
-          className="w-full"
-        />
-        <Select
-          className="w-full"
-          defaultValue="Tất cả trạng thái"
-          value={searchStatus}
-          onChange={handleChange}
-          options={[
-            { value: "", label: "Tất cả trạng thái" },
-            ...orderStatus.map((o) => ({ value: o, label: o })),
-          ]}
-        />
-      </div>
-    </>
+    <div className="flex gap-2 mb-4">
+      <Input
+        placeholder="Tìm theo tên khách hàng"
+        value={searchUserName}
+        onChange={(e) => setSearchUserName(e.target.value)}
+        className="w-full"
+      />
+
+      <Select
+        className="w-full"
+        value={searchStatus}
+        onChange={(value) => setSearchStatus(value)}
+        options={[
+          { value: "", label: "Tất cả trạng thái" },
+          ...orderStatus.map((o) => ({ value: o, label: o })),
+        ]}
+      />
+    </div>
   );
 };
+
 export default Condition;

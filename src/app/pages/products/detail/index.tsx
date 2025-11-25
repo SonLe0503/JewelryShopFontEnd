@@ -1,6 +1,6 @@
-import { Button, Carousel } from "antd";
+import { Button, message } from "antd";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch } from "../../../../store";
 import { useSelector } from "react-redux";
 import {
@@ -13,113 +13,177 @@ import {
   actionGetAllReplies,
   selectReplies,
 } from "../../../../store/replySlide";
+import URL from "../../../../constrants/url";
+import { actionAddOrUpdateCart } from "../../../../store/cartSlide";
+import { selectInfoLogin } from "../../../../store/authSlide";
+import { setOpenLogin } from "../../../../store/uiSlide";
+import { actionGetWishlist, actionToggleWishlist, selectWishlist } from "../../../../store/wishlistSlide";
 
 const Detail = () => {
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
-
   const product = useSelector(selectProductDetail);
   const replies = useSelector(selectReplies);
+  const user = useSelector(selectInfoLogin)
+  const userId = user?.userId
 
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const wishlist = useSelector(selectWishlist);
 
-  // 🟢 Lấy chi tiết sản phẩm
+  const images = product?.productImages?.length
+    ? product.productImages
+    : [product?.imageUrl];
+
+  const handleAddToCart = async () => {
+    if (!userId) {
+      message.warning("Vui lòng đăng nhập để thêm vào giỏ hàng");
+      dispatch(setOpenLogin(true));
+      return;
+    }
+
+    if (!product?.productId) {
+      message.error("Không tìm thấy sản phẩm");
+      return;
+    }
+
+    try {
+      await dispatch(
+        actionAddOrUpdateCart({
+          userId: Number(userId),
+          productId: product.productId,
+          quantity: 1,
+          stockQuantity: product.stockQuantity
+        })
+      ).unwrap();
+
+      message.success("Đã thêm sản phẩm vào giỏ hàng");
+      navigate(URL.Cart);
+
+    } catch (error: any) {
+      message.error(error || "Thêm vào giỏ hàng thất bại");
+    }
+  };
+
+
+  const handleToggleWishlist = async () => {
+    if (!userId) {
+      message.warning("Vui lòng đăng nhập để lưu sản phẩm yêu thích");
+      dispatch(setOpenLogin(true));
+      return;
+    }
+
+    if (!product?.productId) {
+      message.error("Không tìm thấy sản phẩm");
+      return;
+    }
+
+    await dispatch(
+      actionToggleWishlist({ userId: Number(userId), productId: product.productId })
+    );
+
+    if (wishlist.includes(product.productId)) {
+      message.success("Đã xóa khỏi danh sách yêu thích");
+    } else {
+      message.success("Đã thêm vào danh sách yêu thích");
+    }
+  };
+
+  useEffect(() => {
+    if (userId) {
+      dispatch(actionGetWishlist(Number(userId)));
+    }
+  }, [dispatch, userId]);
+
   useEffect(() => {
     if (id) {
       dispatch(actionGetProductById(Number(id)));
     }
   }, [id, dispatch]);
 
-  // 🟢 Lấy tất cả replies 1 lần
   useEffect(() => {
     dispatch(actionGetAllReplies());
   }, [dispatch]);
 
-  // 🟢 Reset carousel khi load sản phẩm
   useEffect(() => {
     if (product?.productImages?.length) {
-      setCurrentIndex(0);
+      const firstImage = product.productImages[0];
+      setSelectedImage(firstImage?.startsWith("http") ? firstImage : `${BASE_URL}${firstImage}`);
     }
   }, [product]);
 
   return (
-    <div className="w-full min-h-screen bg-white p-6">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-[1fr_2fr_2fr] gap-8">
-        {/* Thumbnails + Carousel */}
-        <div className="flex flex-col md:flex-row gap-6 order-2 md:order-1 md:col-span-1">
-          <div className="hidden md:flex md:flex-col gap-3">
-            {(product?.productImages?.length
-              ? product.productImages
-              : [product?.imageUrl]
-            ).map((img, idx) => {
-              const src = img?.startsWith("http") ? img : `${BASE_URL}${img}`;
-              return (
-                <img
-                  key={idx}
-                  src={src}
-                  alt={`thumb-${idx}`}
-                  onClick={() => setCurrentIndex(idx)}
-                  className={`w-20 h-20 object-cover rounded cursor-pointer border ${
-                    currentIndex === idx ? "border-black" : "border-gray-200"
+    <div className="w-full min-h-screen bg-white py-10">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-[100px_1fr_1fr] gap-10 px-4">
+        {/* 🖼️ Cột thumbnail nhỏ bên trái */}
+        <div className="flex md:flex-col gap-4 items-center justify-center">
+          {images.map((img, idx) => {
+            const src = img?.startsWith("http") ? img : `${BASE_URL}${img}`;
+            return (
+              <img
+                key={idx}
+                src={src}
+                alt={`thumb-${idx}`}
+                onClick={() => setSelectedImage(src)}
+                className={`w-20 h-20 object-cover rounded-md border cursor-pointer transition-transform duration-200 ${selectedImage === src
+                  ? "border-black scale-105"
+                  : "border-gray-200 hover:scale-105"
                   }`}
-                />
-              );
-            })}
-          </div>
-
-          <div className="flex-1 md:col-span-2">
-            {(() => {
-              const images = product?.productImages?.length
-                ? product.productImages
-                : [product?.imageUrl];
-              const len = images.length;
-              const displayed = images
-                .slice(currentIndex)
-                .concat(images.slice(0, currentIndex));
-              return (
-                <Carousel
-                  dots={false}
-                  beforeChange={(_, next) =>
-                    setCurrentIndex((currentIndex + next) % len)
-                  }
-                >
-                  {displayed.map((img, idx) => {
-                    const src = img?.startsWith("http")
-                      ? img
-                      : `${BASE_URL}${img}`;
-                    return (
-                      <div
-                        key={idx}
-                        className="flex justify-center items-center"
-                      >
-                        <img
-                          src={src}
-                          alt={`slide-${idx}`}
-                          className="w-full h-[500px] object-cover rounded-lg shadow"
-                        />
-                      </div>
-                    );
-                  })}
-                </Carousel>
-              );
-            })()}
-          </div>
+              />
+            );
+          })}
         </div>
 
-        {/* Thông tin sản phẩm */}
-        <div className="order-3 flex-1 flex flex-col gap-6">
+        {/* 📸 Ảnh chính lớn */}
+        <div className="flex items-center justify-center">
+          {(() => {
+            const mainImage =
+              selectedImage ||
+              (product?.productImages?.[0]
+                ? product.productImages[0].startsWith("http")
+                  ? product.productImages[0]
+                  : `${BASE_URL}${product.productImages[0]}`
+                : product?.imageUrl
+                  ? product.imageUrl.startsWith("http")
+                    ? product.imageUrl
+                    : `${BASE_URL}${product.imageUrl}`
+                  : null);
+
+            return mainImage ? (
+              <img
+                src={mainImage}
+                alt="main"
+                className="w-full max-h-[600px] object-contain rounded-lg shadow"
+              />
+            ) : (
+              <div className="w-full h-[500px] bg-gray-100 flex items-center justify-center text-gray-500 rounded-lg">
+                Không có hình ảnh
+              </div>
+            );
+          })()}
+        </div>
+
+        {/* 📋 Thông tin sản phẩm */}
+        <div className="flex flex-col gap-6">
           <div>
-            <h3 className="text-sm text-black uppercase tracking-wide">
+            <h3 className="text-sm text-gray-500 uppercase tracking-wide">
               {product?.categoryName}
             </h3>
-            <h1 className="text-3xl font-extrabold text-black leading-tight mt-2">
+            <h1 className="text-3xl font-bold text-black mt-2">
               {product?.name}
             </h1>
-            <p className="text-2xl font-bold mt-3 text-black">
-              {product?.price.toLocaleString("vi-VN")} ₫
-            </p>
+            <div className="flex items-center gap-3 mt-3">
+              <p className="text-2xl font-semibold text-black">
+                {product?.price?.toLocaleString("vi-VN")} ₫
+              </p>
+              {(product?.discount ?? 0) > 0 && (
+                <span className="text-sm bg-red-500 text-white px-2 py-1 rounded">
+                  -{product?.discount}%
+                </span>
+              )}
+            </div>
             {product?.stockQuantity === 0 ? (
-              <p className="text-red-500 mt-2">Hết hàng</p>
+              <p className="text-red-500 mt-2 font-medium">Hết hàng</p>
             ) : (
               <p className="text-gray-600 mt-2">
                 Còn {product?.stockQuantity} sản phẩm
@@ -127,33 +191,53 @@ const Detail = () => {
             )}
           </div>
 
-          <div className="text-black leading-relaxed">
+          <div
+            style={{ whiteSpace: "pre-line" }}
+            className="text-gray-700 leading-relaxed font-light">
             {product?.description}
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex flex-col gap-2 text-sm text-gray-600">
+            <p>
+              <span className="font-semibold">Chất liệu:</span>{" "}
+              {product?.material || "Đang cập nhật"}
+            </p>
+            <p>
+              <span className="font-semibold">Ngày tạo:</span>{" "}
+              {dayjs(product?.createdAt).format("DD/MM/YYYY")}
+            </p>
+          </div>
+
+          <div className="flex gap-4 mt-4">
             <Button
               type="primary"
-              className="!bg-black !border-black !text-white"
+              className="!bg-black !border-black !text-white w-1/2"
               size="large"
+              onClick={handleAddToCart}
             >
               THÊM VÀO GIỎ
             </Button>
-            <Button size="large" className="!text-black">
-              LƯU VÀO YÊU THÍCH
+            <Button
+              size="large"
+              className={`w-1/2 flex items-center justify-center gap-2 border ${wishlist.includes(product?.productId)
+                ? "!text-red-500 !border-red-500"
+                : "!text-black"
+                }`}
+              onClick={handleToggleWishlist}
+            >
+              <span>{wishlist.includes(product?.productId) ? "❤️ BỎ YÊU THÍCH" : "🤍 LƯU VÀO YÊU THÍCH"}</span>
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Đánh giá + Reply */}
-      <div className="max-w-4xl mx-auto mt-16">
+      {/* 💬 Đánh giá & phản hồi */}
+      <div className="max-w-5xl mx-auto mt-20 px-4">
         <h2 className="text-2xl font-bold mb-6">Đánh giá & Nhận xét</h2>
 
         {product?.reviews && product.reviews.length > 0 ? (
           <div className="space-y-6">
-            {/* Tổng quan */}
-            <div className="flex items-center gap-3 border-b pb-4">
+            <div className="flex items-center gap-3 border-b border-gray-300 pb-4">
               <p className="text-lg font-semibold">
                 Trung bình:{" "}
                 {(
@@ -167,7 +251,6 @@ const Detail = () => {
               </span>
             </div>
 
-            {/* Danh sách review */}
             {product.reviews.map((review) => {
               const reviewReplies = replies.filter(
                 (r) => r.reviewId === review.reviewId
@@ -176,7 +259,7 @@ const Detail = () => {
               return (
                 <div
                   key={review.reviewId}
-                  className="border-b pb-4 flex flex-col gap-2"
+                  className="border-b border-gray-300 pb-4 flex flex-col gap-2"
                 >
                   <div className="flex items-center justify-between">
                     <p className="font-medium text-gray-900">

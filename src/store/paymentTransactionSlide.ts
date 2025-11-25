@@ -35,7 +35,7 @@ export const actionGetAllTransactions = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await request({
-        url: `/api/PaymentTransaction/GetAllTransactions`,
+        url: `/PaymentTransaction/GetAllTransactions`,
         method: "GET",
       });
       return res.data;
@@ -53,7 +53,7 @@ export const actionGetTransactionById = createAsyncThunk(
   async (transactionId: number, { rejectWithValue }) => {
     try {
       const res = await request({
-        url: `/api/PaymentTransaction/GetTransactionById/${transactionId}`,
+        url: `/PaymentTransaction/GetTransactionById/${transactionId}`,
         method: "GET",
       });
       return res.data;
@@ -71,7 +71,7 @@ export const actionGetTransactionByOrder = createAsyncThunk(
   async (orderId: number, { rejectWithValue }) => {
     try {
       const res = await request({
-        url: `/api/PaymentTransaction/GetTransactionByOrder/${orderId}`,
+        url: `/PaymentTransaction/GetTransactionByOrder/${orderId}`,
         method: "GET",
       });
       return res.data;
@@ -92,7 +92,7 @@ export const actionCreateTransaction = createAsyncThunk(
   ) => {
     try {
       const res = await request({
-        url: `/api/PaymentTransaction/CreateTransaction/Create`,
+        url: `/PaymentTransaction/CreateTransaction/Create`,
         method: "POST",
         data,
       });
@@ -112,7 +112,7 @@ export const actionUpdateTransactionStatus = createAsyncThunk(
   ) => {
     try {
       const res = await request({
-        url: `/api/PaymentTransaction/UpdateTransactionStatus/${transactionId}`,
+        url: `/PaymentTransaction/UpdateTransactionStatus/${transactionId}`,
         method: "PUT",
         data: status,
         headers: {
@@ -134,7 +134,7 @@ export const actionDeleteTransaction = createAsyncThunk(
   async (transactionId: number, { rejectWithValue }) => {
     try {
       const res = await request({
-        url: `/api/PaymentTransaction/DeleteTransaction/${transactionId}`,
+        url: `/PaymentTransaction/DeleteTransaction/${transactionId}`,
         method: "DELETE",
       });
       return res.data;

@@ -19,6 +19,14 @@ const ManageAccount = lazy(() => import("../app/pages/admin/manage/accounts"))
 const ManageProduct = lazy(() => import("../app/pages/admin/manage/products"))
 const ManageOrder = lazy(() => import("../app/pages/admin/manage/orders"))
 const ManageFeedback = lazy(() => import("../app/pages/admin/manage/feedbacks"))
+const ManagePayment = lazy(() => import("../app/pages/admin/manage/paymentTransactions"))
+const CustomerOrder = lazy(() => import("../app/pages/orders"))
+const VerifyEmailPage = lazy(() => import("../app/pages/register/VerifyEmailPage"))
+const CheckMail = lazy(() => import("../app/pages/register/CheckMailPage"))
+const ForgotPassword = lazy(() => import("../app/pages/login/ForgotPassword"))
+const Dashboard = lazy(() => import("../app/pages/admin/dashboard"))
+const AboutPage = lazy(() => import("../app/pages/about"))
+const ProductStoryPage = lazy(() => import("../app/pages/products/story"))
 const shareResourceItem = [
   {
     key: URL.Register,
@@ -48,7 +56,7 @@ const shareResourceItem = [
     key: URL.Detail,
     element: <Detail/>,
     layout: DEFAULT_LAYOUT,
-    private: true,
+    private: false,
   },
   {
     key: URL.WishList,
@@ -56,8 +64,50 @@ const shareResourceItem = [
     layout: DEFAULT_LAYOUT,
     private: false,
   },
+  {
+    key: URL.CustomerOrder,
+    element: <CustomerOrder/>,
+    layout: DEFAULT_LAYOUT,
+    private: true,
+  },
+  {
+    key: URL.VerifiEmail,
+    element: <VerifyEmailPage />,
+    layout: DEFAULT_LAYOUT,
+    private: false, 
+  },
+  {
+    key: URL.CheckMail,
+    element: <CheckMail/>,
+    layout: DEFAULT_LAYOUT,
+    private: false,
+  },
+  {
+    key: URL.ForgotPassword,
+    element: <ForgotPassword/>,
+    layout: DEFAULT_LAYOUT,
+    private: false,
+  },
+  {
+    key: URL.AboutPage,
+    element: <AboutPage/>,
+    layout: DEFAULT_LAYOUT,
+    private: false,
+  },
+  {
+    key: URL.ProductStoryPage,
+    element: <ProductStoryPage/>,
+    layout: DEFAULT_LAYOUT,
+    private: false,
+  }
 ];
 const privateResourceItem = [
+  {
+    key: URL.Dashboard,
+    element: <Dashboard/>,
+    layout: ADMIN_LAYOUT,
+    private: true,
+  },
   {
     key:URL.ManageAccount,
     element: <ManageAccount/>,
@@ -79,6 +129,12 @@ const privateResourceItem = [
   {
     key: URL.ManageFeedack,
     element: <ManageFeedback/>,
+    layout: ADMIN_LAYOUT,
+    private: true,
+  },
+  {
+    key: URL.ManagePayment,
+    element: <ManagePayment/>,
     layout: ADMIN_LAYOUT,
     private: true,
   }

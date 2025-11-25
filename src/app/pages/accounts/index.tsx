@@ -6,30 +6,25 @@ import { useAppDispatch } from "../../../store";
 import { useEffect } from "react";
 import { BASE_URL } from "../../../utils/app";
 import { selectOpenProfile, setOpenLogin, setOpenProfile } from "../../../store/uiSlide";
+import { useNavigate } from "react-router-dom";
+import URL from "../../../constrants/url";
+import ChangePassword from "./ChangePassword";
 
 const Profile = () => {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const userInfo = useSelector(selectInfoLogin);
   const myProfile = useSelector(selectMyProfile);
-
-  // ✅ Lấy trạng thái mở/đóng từ Redux
   const openProfile = useSelector(selectOpenProfile);
 
-  useEffect(() => {
-    if (openProfile) {
-      dispatch(actionGetMyProfile());
-    }
-  }, [dispatch, openProfile]);
-
-  // ✅ Đăng xuất
   const handleLogout = () => {
     dispatch(logout());
     localStorage.removeItem("persist:auth");
     dispatch(setOpenProfile(false));
-    dispatch(setOpenLogin(true)); // mở modal đăng nhập
+    dispatch(setOpenLogin(true));
+    navigate(URL.Home);
   };
 
-  // ✅ Upload avatar
   const handleUploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -49,6 +44,13 @@ const Profile = () => {
     }
   };
 
+
+  useEffect(() => {
+    if (openProfile) {
+      dispatch(actionGetMyProfile());
+    }
+  }, [dispatch, openProfile]);
+
   return (
     <>
       <Drawer
@@ -56,12 +58,17 @@ const Profile = () => {
         placement="right"
         onClose={() => dispatch(setOpenProfile(false))}
         open={openProfile}
-        width={350}
-        headerStyle={{
-          fontWeight: "bold",
-          borderBottom: "1px solid #f0f0f0",
+        size="default"
+        styles={{
+          header: {
+            fontWeight: "bold",
+            borderBottom: "1px solid #f0f0f0",
+          },
+          body: {
+            padding: "20px",
+            width: 350, maxWidth: "100%"
+          },
         }}
-        bodyStyle={{ padding: "20px" }}
       >
         <div className="flex flex-col items-center text-center">
           <Avatar
@@ -100,7 +107,7 @@ const Profile = () => {
           </div>
 
           <Divider />
-
+          <ChangePassword />
           <button
             onClick={handleLogout}
             className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition"

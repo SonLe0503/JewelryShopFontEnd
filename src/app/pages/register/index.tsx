@@ -1,51 +1,85 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { GoogleOutlined } from "@ant-design/icons";
-import { Button, Checkbox, Divider, Form, Input, message, Select } from "antd";
-import { actionRegister, selectIsLogin } from "../../../store/authSlide";
+import { Button, Checkbox, Divider, Form, Input } from "antd";
+import { actionGoogleLogin, actionRegister, selectIsLogin } from "../../../store/authSlide";
 import { useAppDispatch } from "../../../store";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
 import { setOpenLogin } from "../../../store/uiSlide";
+import { useNavigate } from "react-router-dom";
+import URL from "../../../constrants/url";
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
+import { EUserRole } from "../../../interface/app";
 
-
-const {Option} = Select;
 const Register = () => {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const isLogin = useSelector(selectIsLogin);
   const [form] = Form.useForm();
-  useEffect(() => {
-    if (isLogin) {
-      dispatch(setOpenLogin(true));
-    }
-  }, [isLogin]);
 
   const onFinish = async (values: any) => {
     try {
       const payload = {
         email: values.email,
         password: values.password,
-        year: values.year,
-        month: values.month,
-        day: values.day,
+        phoneNumber: values.phoneNumber,
       };
 
       const result = await dispatch(actionRegister(payload));
 
       if (actionRegister.fulfilled.match(result)) {
-        message.success("Đăng ký thành công!");
-        dispatch(setOpenLogin(true));
+        alert("Đăng ký thành công!");
+        navigate(URL.CheckMail);
       } else {
-        message.error("Đăng ký thất bại. Vui lòng thử lại!");
+        alert("Đăng ký thất bại. Vui lòng thử lại!");
       }
     } catch (error) {
       console.error("Lỗi đăng ký:", error);
-      message.error("Đăng ký thất bại!");
+      alert("Đăng ký thất bại!");
     }
   };
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      const id_token = credentialResponse.credential;
+      const res: any = await dispatch(actionGoogleLogin(id_token)).unwrap();
+
+      const token = res?.data?.token;
+      if (!token) {
+        alert("Đăng nhập Google thất bại");
+        return;
+      }
+
+      alert("Đăng nhập bằng Google thành công");
+      dispatch(setOpenLogin(false));
+
+      const decoded: any = jwtDecode(token);
+      const role = decoded["role"];
+
+      if (role === EUserRole.ADMIN) {
+        navigate(URL.ManageProduct);
+      } else {
+        navigate(URL.Home);
+      }
+    } catch (error: any) {
+      console.error(error);
+      alert("Đăng nhập Google thất bại");
+    }
+  };
+
+  const handleGoogleError = () => {
+    alert("Không thể đăng nhập bằng Google");
+  };
+
+  useEffect(() => {
+    if (isLogin) {
+      dispatch(setOpenLogin(true));
+    }
+  }, [isLogin]);
+
   return (
-    <>
-        <div className="max-w-md mx-auto py-10 px-5">
+    <div className="max-w-md mx-auto py-10 px-5">
       {/* Tiêu đề */}
       <h2 className="text-center text-xl font-bold mb-3">TẠO TÀI KHOẢN</h2>
       <p className="text-[12px] text-gray-600 text-center mb-2">
@@ -58,13 +92,11 @@ const Register = () => {
       </p>
 
       {/* Nút Google */}
-      <Button
-        block
-        icon={<GoogleOutlined />}
-        className="!border-black text-black mb-5"
-      >
-        Google
-      </Button>
+      <GoogleLogin
+        onSuccess={handleGoogleSuccess}
+        onError={handleGoogleError}
+        // useOneTap
+      />
 
       <Divider plain className="!text-gray-600 text-[13px] font-sans">
         hoặc tiếp tục với
@@ -75,7 +107,10 @@ const Register = () => {
         <Form.Item
           name="email"
           label="Địa chỉ email"
-          rules={[{ required: true, message: "Vui lòng nhập email" }]}
+          rules={[
+            { required: true, message: "Vui lòng nhập email" },
+            { type: "email", message: "Email không hợp lệ" },
+          ]}
         >
           <Input placeholder="Nhập email" />
         </Form.Item>
@@ -91,42 +126,19 @@ const Register = () => {
           <Input.Password placeholder="Mật khẩu (ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số)" />
         </Form.Item>
 
-        {/* Ngày sinh */}
-        <Form.Item label="Ngày sinh*">
-          <div className="flex gap-2">
-            <Form.Item name="year" noStyle rules={[{ required: true, message: "" }]}>
-              <Select placeholder="Năm" className="w-1/3">
-                {[...Array(70)].map((_, i) => {
-                  const year = 2025 - i;
-                  return (
-                    <Option key={year} value={year}>
-                      {year}
-                    </Option>
-                  );
-                })}
-              </Select>
-            </Form.Item>
-
-            <Form.Item name="month" noStyle rules={[{ required: true, message: "" }]}>
-              <Select placeholder="MM" className="w-1/3">
-                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                  <Option key={m} value={m}>
-                    {m}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-
-            <Form.Item name="day" noStyle rules={[{ required: true, message: "" }]}>
-              <Select placeholder="DD" className="w-1/3">
-                {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
-                  <Option key={d} value={d}>
-                    {d}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </div>
+        {/* Số điện thoại */}
+        <Form.Item
+          name="phoneNumber"
+          label="Số điện thoại"
+          rules={[
+            { required: true, message: "Vui lòng nhập số điện thoại" },
+            {
+              pattern: /^(0|\+84)[0-9]{9,10}$/,
+              message: "Số điện thoại không hợp lệ",
+            },
+          ]}
+        >
+          <Input placeholder="Nhập số điện thoại" />
         </Form.Item>
 
         <Form.Item
@@ -150,7 +162,7 @@ const Register = () => {
             <a href="#" className="underline">
               Chính sách Quyền riêng tư
             </a>{" "}
-            của CHARLES & KEITH.
+            của Hi Jean!.
           </Checkbox>
         </Form.Item>
 
@@ -164,7 +176,7 @@ const Register = () => {
         </Button>
       </Form>
     </div>
-    </>
-  )
-}
+  );
+};
+
 export default Register;

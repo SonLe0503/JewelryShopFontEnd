@@ -1,6 +1,9 @@
 import { Form, Input, Select } from "antd";
 import BaseModal from "./BaseModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { actionGetMyProfile, selectMyProfile } from "../../../store/authSlide";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from "../../../store";
 
 const { Option } = Select;
 
@@ -17,7 +20,7 @@ interface CheckoutModalProps {
   onClose: () => void;
   onConfirm: (values: CheckoutValues) => void;
   total: number; // ✅ tổng tiền từ giỏ hàng
-  initialValues?: Partial<CheckoutValues>;
+  // initialValues?: Partial<CheckoutValues>;
 }
 
 const CheckoutModal = ({
@@ -25,28 +28,36 @@ const CheckoutModal = ({
   onClose,
   onConfirm,
   total,
-  initialValues,
 }: CheckoutModalProps) => {
+  const dispatch = useAppDispatch();
+  const myProfile = useSelector(selectMyProfile);
   const [form] = Form.useForm();
   const [paymentMethod, setPaymentMethod] = useState<"COD" | "QR">();
 
-  // ⚙️ Cấu hình tài khoản VietQR của bạn
-  const BANK_ID = "VCB"; // Ví dụ: Vietcombank
-  const ACCOUNT_NO = "0123456789"; // Thay bằng STK thật
-  const ACCOUNT_NAME = "NGUYEN VAN A"; // Tên chủ tài khoản (viết hoa, không dấu)
-  const DESCRIPTION = `Thanh toan don hang`; // Nội dung chuyển khoản
-
-  const qrUrl = `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?amount=${total}&addInfo=${encodeURIComponent(
-    DESCRIPTION
-  )}&accountName=${encodeURIComponent(ACCOUNT_NAME)}`;
-
-  const handleSubmit = () => {
-    form.validateFields().then((values) => {
+  const handleSubmit = async () => {
+    form.validateFields().then(async (values) => {
       onConfirm(values as CheckoutValues);
       form.resetFields();
       setPaymentMethod(undefined);
     });
   };
+
+  useEffect(() => {
+    dispatch(actionGetMyProfile());
+  }, [dispatch]);
+
+
+  useEffect(() => {
+  if (open && myProfile) {
+    setTimeout(() => {
+      form.setFieldsValue({
+        email: myProfile.email,
+        phone: myProfile.phoneNumber,
+      });
+    }, 0);
+  }
+}, [open, myProfile]);
+
 
   return (
     <BaseModal
@@ -56,7 +67,7 @@ const CheckoutModal = ({
       onSubmit={handleSubmit}
       okText="Xác nhận"
     >
-      <Form form={form} layout="vertical" initialValues={initialValues}>
+      <Form form={form} layout="vertical">
         <Form.Item
           name="name"
           label="Họ và tên"
@@ -113,22 +124,16 @@ const CheckoutModal = ({
           </Select>
         </Form.Item>
 
-        {/* Hiển thị QR khi chọn thanh toán bằng VietQR */}
         {paymentMethod === "QR" && (
           <div className="flex flex-col items-center mt-4">
             <p className="mb-3 text-gray-600 text-center">
               Quét mã QR để thanh toán <br />
-              <strong>{total.toLocaleString()} đ</strong> tới tài khoản:
-            </p>
-            <p className="text-sm text-gray-700 mb-2 text-center">
-              <strong>{ACCOUNT_NAME}</strong> <br />
-              Ngân hàng: {BANK_ID} <br />
-              STK: {ACCOUNT_NO}
+              <strong>{total.toLocaleString()} đ</strong> tới tài khoản: Ha Ngo Khanh Linh
             </p>
             <img
-              src={qrUrl}
-              alt="QR Code VietQR"
-              className="w-60 h-60 rounded-lg shadow-md mb-3"
+              src={`https://img.vietqr.io/image/970415-102590306666-compact.png?amount=${total}&addInfo=Thanh+toan+don+hang&accountName=Ha+Ngo+Khanh+Linh`}
+              alt="QR code"
+              className="w-52 h-52 border border-gray-300 rounded-md mt-2"
             />
             <p className="text-sm text-gray-500 text-center">
               Sau khi chuyển khoản thành công, vui lòng nhấn <b>“Xác nhận”</b> để hoàn tất đơn hàng.

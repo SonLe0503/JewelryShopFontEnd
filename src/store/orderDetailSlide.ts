@@ -33,7 +33,7 @@ export const actionGetOrderDetails = createAsyncThunk(
   async (orderId: number, { rejectWithValue }) => {
     try {
       const res = await request({
-        url: `/api/OrderDetail/GetOrderDetails/${orderId}`,
+        url: `/OrderDetail/GetOrderDetails/${orderId}`,
         method: "GET",
       });
       return res.data;
@@ -52,7 +52,7 @@ export const actionAddOrderDetail = createAsyncThunk(
   ) => {
     try {
       const res = await request({
-        url: `/api/OrderDetail/AddOrderDetail?orderId=${orderId}`,
+        url: `/OrderDetail/AddOrderDetail?orderId=${orderId}`,
         method: "POST",
         data,
       });

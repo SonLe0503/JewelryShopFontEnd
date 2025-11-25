@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import { useSelector } from "react-redux";
 import {
+  actionDeleteUser,
   actionGetAllUsers,
   selectUsers,
 } from "../../../../../store/authSlide";
@@ -30,6 +31,22 @@ const ManageAccount = () => {
     setSelectedUser(user);
     setIsEditModalOpen(true);
   };
+
+  const handleDelete = (userId: number) => {
+  // Bạn có thể thêm confirm trước khi xóa
+  if (window.confirm("Bạn có chắc muốn xóa tài khoản này?")) {
+    dispatch(actionDeleteUser(userId))
+      .unwrap()
+      .then(() => {
+        alert("Xóa tài khoản thành công!");
+        dispatch(actionGetAllUsers());
+      })
+      .catch(() => {
+        alert("Xóa thất bại, thử lại sau!");
+      });
+  }
+};
+
 
   const filteredData = users.filter(
     (user) =>
@@ -93,7 +110,7 @@ const ManageAccount = () => {
               </div>
               <div className="px-3 py-2">{u.phoneNumber ?? "—"}</div>
               <div className="px-3 py-2 flex justify-center items-center">
-                {u.status === "active" ? (
+                {u.status === "Active" ? (
                   <Tag color="green">Active</Tag>
                 ) : (
                   <Tag color="red">Blocked</Tag>
@@ -105,6 +122,12 @@ const ManageAccount = () => {
                   onClick={() => handleEdit(u)}
                 >
                   Edit
+                </Button>
+                <Button
+                  className="!bg-red-500 !text-white px-3 py-1 rounded"
+                  onClick={() => handleDelete(u.userId)}
+                >
+                  Delete
                 </Button>
               </div>
             </div>

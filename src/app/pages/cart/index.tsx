@@ -8,10 +8,14 @@ import {
   actionUpdateCartQuantity,
   actionRemoveFromCart,
   selectCart,
+  actionClearCart,
 } from "../../../store/cartSlide";
 import { selectInfoLogin } from "../../../store/authSlide";
 import { useAppDispatch } from "../../../store";
 import { actionCreateOrder } from "../../../store/orderSlide";
+import { BASE_URL } from "../../../utils/app";
+import { actionCreateTransaction } from "../../../store/paymentTransactionSlide";
+import { actionGetProductById, actionUpdateProductStock } from "../../../store/productSlide";
 
 const Cart = () => {
   const dispatch = useAppDispatch();
@@ -19,12 +23,7 @@ const Cart = () => {
   const { userId } = useSelector(selectInfoLogin);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
-  // Lấy giỏ hàng khi vào component
-  useEffect(() => {
-    if (userId) {
-      dispatch(actionGetCartByUser(Number(userId)));
-    }
-  }, [dispatch, userId]);
+  const total = carts.reduce((acc, item) => acc + item.totalPrice, 0);
 
   const handleQuantityChange = (cartId: number, value: number) => {
     if (value < 1) return;
@@ -45,22 +44,26 @@ const Cart = () => {
       .catch(() => message.error("Xóa sản phẩm thất bại"));
   };
 
-  const total = carts.reduce((acc, item) => acc + item.totalPrice, 0);
+  useEffect(() => {
+    if (userId) {
+      dispatch(actionGetCartByUser(Number(userId)));
+    }
+  }, [dispatch, userId]);
 
   return (
     <>
       <section className="max-w-6xl mx-auto p-6 grid md:grid-cols-3 gap-8">
         {/* Left: Cart Items */}
         <div className="md:col-span-2 space-y-6">
-          <h2 className="text-2xl font-bold mb-4">Giỏ hàng của bạn</h2>
-          {carts.length === 0 && <p>Giỏ hàng trống</p>}
+          <h2 className="text-2xl font-light mb-4">Giỏ hàng của bạn</h2>
+          {carts.length === 0 && <p className="font-light">Giỏ hàng trống</p>}
           {carts.map((item) => (
             <div
               key={item.cartId}
               className="flex gap-4 bg-white rounded-lg shadow-sm p-4 items-center"
             >
               <img
-                src={item.imgUrl}
+                src={`${BASE_URL}${item.imgUrl}`}
                 alt={item.productName}
                 className="w-28 h-28 object-cover rounded-md"
               />
@@ -131,20 +134,16 @@ const Cart = () => {
       <CheckoutModal
         open={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
-        onConfirm={(values) => {
-          // Create order with cart items and shipping info
+        total={total}
+        onConfirm={async (values) => {
+          if (!userId) return;
+
           const orderData = {
             userId: Number(userId),
             totalPrice: total,
-            status:
-              values.paymentMethod === "QR" ? "Waiting for Payment" : "Pending",
-            shippingInfo: {
-              name: values.name,
-              email: values.email,
-              phone: values.phone,
-              address: values.address,
-              paymentMethod: values.paymentMethod,
-            },
+            status: "Pending",
+            shippingAddress: values.address,
+            paymentMethod: values.paymentMethod,
             orderDetails: carts.map((item) => ({
               productId: item.productId,
               quantity: item.quantity,
@@ -152,19 +151,52 @@ const Cart = () => {
             })),
           };
 
-          dispatch(actionCreateOrder(orderData))
-            .unwrap()
-            .then(() => {
-              message.success("Đặt hàng thành công");
-              setIsCheckoutOpen(false);
-              dispatch(actionGetCartByUser(Number(userId)));
-            })
-            .catch(() => {
-              message.error("Đặt hàng thất bại");
-            });
+          try {
+
+            const createdOrder = await dispatch(actionCreateOrder(orderData)).unwrap();
+            message.success("Đặt hàng thành công");
+
+            // 🔹 Cập nhật stock cho từng sản phẩm
+            for (const item of carts) {
+              // Lấy thông tin sản phẩm hiện tại từ DB
+              const product = await dispatch(
+                actionGetProductById(item.productId)
+              ).unwrap();
+
+              // Tính stock mới
+              const newStock = product.stockQuantity - item.quantity;
+
+              // Gọi API update stock
+              await dispatch(
+                actionUpdateProductStock({
+                  productId: item.productId,
+                  stockQuantity: newStock,
+                })
+              ).unwrap();
+            }
+            // if (values.paymentMethod === "QR") {
+            const transactionData = {
+              orderId: createdOrder.orderId,
+              amount: total,
+              paymentStatus: "Pending",
+            };
+
+            await dispatch(
+              actionCreateTransaction(transactionData)
+            ).unwrap();
+            message.info("Đơn hàng đang chờ thanh toán QR");
+            // }
+
+            await dispatch(actionClearCart(Number(userId))).unwrap();
+            setIsCheckoutOpen(false);
+            dispatch(actionGetCartByUser(Number(userId)));
+          } catch (err) {
+            console.error(err);
+            message.error("Đặt hàng thất bại");
+          }
         }}
-        total={total}
       />
+
     </>
   );
 };

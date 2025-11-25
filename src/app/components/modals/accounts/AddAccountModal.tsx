@@ -1,5 +1,5 @@
-import { Form, Input, DatePicker, Select, message } from "antd";
-import dayjs from "dayjs";
+import { Form, Input, Select, message } from "antd";
+// import dayjs from "dayjs";
 import BaseModal from "../BaseModal";
 import { actionRegister, actionGetAllUsers } from "../../../../store/authSlide";
 import { useAppDispatch } from "../../../../store";
@@ -15,7 +15,6 @@ const AddAccountModal = ({ open, onClose }: { open: boolean; onClose: () => void
         email: values.email,
         password: values.password,
         phoneNumber: values.phone,
-        dob: dayjs(values.dob).format("YYYY-MM-DD"),
       };
       await dispatch(actionRegister(payload)).unwrap();
       message.success("Thêm tài khoản thành công!");
@@ -53,9 +52,9 @@ const AddAccountModal = ({ open, onClose }: { open: boolean; onClose: () => void
         <Form.Item name="phone" label="Số điện thoại">
           <Input placeholder="Nhập số điện thoại" />
         </Form.Item>
-        <Form.Item name="dob" label="Ngày sinh">
+        {/* <Form.Item name="dob" label="Ngày sinh">
           <DatePicker className="w-full" format="DD/MM/YYYY" />
-        </Form.Item>
+        </Form.Item> */}
         <Form.Item name="status" label="Trạng thái" initialValue="active">
           <Select>
             <Select.Option value="active">Active</Select.Option>

@@ -5,7 +5,7 @@ interface BaseModalProps {
   title: string;
   open: boolean;
   onCancel: () => void;
-  onSubmit?: () => void;
+  onSubmit?: () => void; // nếu có thì hiển thị nút Lưu
   okText?: string;
   cancelText?: string;
   children: ReactNode;
@@ -19,29 +19,33 @@ const BaseModal = ({
   onCancel,
   onSubmit,
   okText = "Lưu",
-  cancelText = "Hủy",
+  cancelText = "Đóng",
   children,
   width = 600,
   loading = false,
 }: BaseModalProps) => {
+  // Chỉ tạo footer nếu onSubmit tồn tại, còn không chỉ hiển thị nút Đóng
+  const footer = onSubmit
+    ? [
+        <Button key="cancel" onClick={onCancel}>
+          {cancelText}
+        </Button>,
+        <Button key="submit" type="primary" loading={loading} onClick={onSubmit}>
+          {okText}
+        </Button>,
+      ]
+    : [
+        <Button key="cancel" onClick={onCancel}>
+          {cancelText}
+        </Button>,
+      ];
+
   return (
     <Modal
       title={<h2 className="font-semibold text-lg">{title}</h2>}
       open={open}
       onCancel={onCancel}
-      footer={[
-        <Button key="cancel" onClick={onCancel}>
-          {cancelText}
-        </Button>,
-        <Button
-          key="submit"
-          type="primary"
-          loading={loading}
-          onClick={onSubmit}
-        >
-          {okText}
-        </Button>,
-      ]}
+      footer={footer}
       width={width}
       centered
       destroyOnHidden
@@ -50,4 +54,5 @@ const BaseModal = ({
     </Modal>
   );
 };
+
 export default BaseModal;

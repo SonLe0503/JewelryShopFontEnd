@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Form, Input, Select } from "antd";
+import { Form, Select } from "antd";
 import { useEffect } from "react";
 import BaseModal from "../BaseModal";
 import { useAppDispatch } from "../../../../store";
@@ -12,7 +12,6 @@ interface EditOrderModalProps {
 }
 
 const statusOptions = ["Pending", "Paid", "Shipping", "Completed", "Cancelled"];
-const paymentOptions = ["QR", "COD"];
 
 const EditOrderModal = ({ open, onClose, orderData }: EditOrderModalProps) => {
   const [form] = Form.useForm();
@@ -22,8 +21,6 @@ const EditOrderModal = ({ open, onClose, orderData }: EditOrderModalProps) => {
     if (orderData) {
       form.setFieldsValue({
         status: orderData.status,
-        paymentMethod: orderData.paymentMethod,
-        shippingAddress: orderData.shippingAddress,
       });
     } else {
       form.resetFields();
@@ -46,7 +43,7 @@ const EditOrderModal = ({ open, onClose, orderData }: EditOrderModalProps) => {
 
   return (
     <BaseModal
-      title={`Chỉnh sửa đơn hàng ${orderData?.orderId ?? ""}`}
+      title={`Cập nhật trạng thái đơn hàng ${orderData?.orderId ?? ""}`}
       open={open}
       onCancel={onClose}
       onSubmit={handleSubmit}
@@ -55,20 +52,13 @@ const EditOrderModal = ({ open, onClose, orderData }: EditOrderModalProps) => {
       <Form form={form} layout="vertical">
         <Form.Item
           name="status"
-          label="Trạng thái"
+          label="Trạng thái đơn hàng"
           rules={[{ required: true, message: "Vui lòng chọn trạng thái" }]}
         >
-          <Select options={statusOptions.map((s) => ({ value: s, label: s }))} />
-        </Form.Item>
-        <Form.Item name="paymentMethod" label="Phương thức thanh toán">
-          <Select options={paymentOptions.map((p) => ({ value: p, label: p }))} />
-        </Form.Item>
-        <Form.Item
-          name="shippingAddress"
-          label="Địa chỉ giao hàng"
-          rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}
-        >
-          <Input.TextArea rows={2} />
+          <Select
+            options={statusOptions.map((s) => ({ value: s, label: s }))}
+            placeholder="Chọn trạng thái đơn hàng"
+          />
         </Form.Item>
       </Form>
     </BaseModal>

@@ -30,7 +30,7 @@ export const actionGetAllImages = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await request({
-        url: "/api/ProductImage/GetAll",
+        url: "/ProductImage/GetAll",
         method: "GET",
       });
       return res.data;
@@ -46,7 +46,7 @@ export const actionGetImagesByProductId = createAsyncThunk(
   async (productId: number, { rejectWithValue }) => {
     try {
       const res = await request({
-        url: `/api/ProductImage/GetByProductId/${productId}`,
+        url: `/ProductImage/GetByProductId/${productId}`,
         method: "GET",
       });
       return res.data;
@@ -66,7 +66,7 @@ export const actionUploadProductImage = createAsyncThunk(
       formData.append("file", file);
 
       const res = await request({
-        url: "/api/ProductImage/UploadImage",
+        url: `/ProductImage/UploadImage?productId=${productId}`,
         method: "POST",
         data: formData,
         headers: { "Content-Type": "multipart/form-data" },
@@ -85,7 +85,7 @@ export const actionDeleteProductImage = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       await request({
-        url: `/api/ProductImage/Delete/${id}`,
+        url: `/ProductImage/Delete/${id}`,
         method: "DELETE",
       });
       return id;

@@ -66,13 +66,18 @@ export const actionCreateCategory = createAsyncThunk(
   "category/actionCreateCategory",
   async (
     categoryData: { categoryName: string; description: string },
-    { rejectWithValue }
+    { rejectWithValue, getState }
   ) => {
     try {
+      const state: any = getState();
+      const token = state.auth.infoLogin?.accessToken;
       const response = await request({
         url: `/Category/CreateCategory`,
         method: "POST",
         data: categoryData,
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       return response.data;
     } catch (error) {
@@ -86,13 +91,18 @@ export const actionEditCategory = createAsyncThunk(
   "category/actionEditCategory",
   async (
     { id, data }: { id: number; data: { categoryName: string; description: string } },
-    { rejectWithValue }
+    { rejectWithValue, getState }
   ) => {
     try {
+       const state: any = getState();
+      const token = state.auth.infoLogin?.accessToken;
       const response = await request({
         url: `/Category/EditCategory?id=${id}`,
         method: "PUT",
         data,
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       return response.data;
     } catch (error) {
@@ -104,11 +114,16 @@ export const actionEditCategory = createAsyncThunk(
 // 🟢 DELETE CATEGORY
 export const actionDeleteCategory = createAsyncThunk(
   "category/actionDeleteCategory",
-  async (id: number, { rejectWithValue }) => {
+  async (id: number, { rejectWithValue, getState }) => {
     try {
+       const state: any = getState();
+      const token = state.auth.infoLogin?.accessToken;
       await request({
         url: `/Category/DeleteCategory?id=${id}`,
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       return id; // Trả về id để xóa khỏi Redux state
     } catch (error) {
@@ -179,7 +194,7 @@ export const slice = createSlice({
         state.loading = false;
         state.error = (action.payload as string) ?? "Không thể cập nhật danh mục";
       })
-       // 🟡 Delete
+      // 🟡 Delete
       .addCase(actionDeleteCategory.pending, (state) => {
         state.loading = true;
       })

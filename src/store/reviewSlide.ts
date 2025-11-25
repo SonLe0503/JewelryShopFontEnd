@@ -66,7 +66,7 @@ export const actionGetReviewsByUser = createAsyncThunk(
   async (userId: number, { rejectWithValue }) => {
     try {
       const res = await request({
-        url: `/Review/GetReviewsByUser/${userId}`,
+        url: `/Review/GetReviewsByUser/ByUser/${userId}`,
         method: "GET",
       });
       return res.data;
@@ -81,13 +81,18 @@ export const actionCreateReview = createAsyncThunk(
   "review/actionCreateReview",
   async (
     data: { userId: number; productId: number; rating: number; comment: string },
-    { rejectWithValue }
+    { rejectWithValue, getState }
   ) => {
     try {
+      const state: any = getState();
+      const token = state.auth.infoLogin?.accessToken;
       const res = await request({
         url: `/Review/CreateReview`,
         method: "POST",
         data,
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       return res.data;
     } catch (error) {
@@ -125,11 +130,16 @@ export const actionUpdateReview = createAsyncThunk(
 // 🟢 DELETE REVIEW
 export const actionDeleteReview = createAsyncThunk(
   "review/actionDeleteReview",
-  async (reviewId: number, { rejectWithValue }) => {
+  async (reviewId: number, { rejectWithValue, getState }) => {
     try {
+      const state: any = getState();
+      const token = state.auth.infoLogin?.accessToken;
       await request({
         url: `/Review/DeleteReview/${reviewId}`,
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       return reviewId;
     } catch (error) {
@@ -169,6 +179,20 @@ export const slice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+
+      // 🔹 Get Reviews by User
+      .addCase(actionGetReviewsByUser.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(actionGetReviewsByUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.reviews = action.payload;
+      })
+      .addCase(actionGetReviewsByUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
 
       // 🔹 Create Review
       .addCase(actionCreateReview.pending, (state) => {

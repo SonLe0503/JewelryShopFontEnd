@@ -1,14 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-import {jwtDecode} from "jwt-decode";  
+import { jwtDecode } from "jwt-decode";
 
 import { EUserRole, type DynamicKeyObject } from "../interface/app";
 import { request } from "../utils/request";
 
 import type { RootState } from "./index";
+import { message } from "antd";
 
-interface IInfoLogin  {
+interface IInfoLogin {
   accessToken: string;
   role: EUserRole;
   email: string;
@@ -55,21 +56,73 @@ const initialState: IInitialState = {
   myProfile: null,
 };
 
+// ======================= VERIFY EMAIL =======================
+export const actionVerifyEmail = createAsyncThunk(
+  "auth/actionVerifyEmail",
+  async (token: string, { rejectWithValue }) => {
+    try {
+      const response = await request({
+        url: `/Auth/VerifyEmail?token=${token}`,
+        method: "GET",
+      });
+      return response.data; // { message: "Email verified successfully" }
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+// ======================= FORGOT PASSWORD =======================
+export const actionForgotPassword = createAsyncThunk(
+  "auth/actionForgotPassword",
+  async (email: string, { rejectWithValue }) => {
+    try {
+      const response = await request({
+        url: `/Auth/ForgotPassword`,
+        method: "POST",
+        data: { email },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+
 export const actionLogin = createAsyncThunk(
   "auth/actionLogin",
-  async(data:DynamicKeyObject, {rejectWithValue}) => {
+  async (data: DynamicKeyObject, { rejectWithValue }) => {
     const { ...payload } = data;
-    try{
+    try {
       return await request({
         url: `/Auth/Login`,
         method: "POST",
         data: payload,
       })
-    }catch(error){
+    } catch (error) {
       return rejectWithValue(error);
     }
   }
 )
+
+// ======================= GOOGLE LOGIN =======================
+export const actionGoogleLogin = createAsyncThunk(
+  "auth/actionGoogleLogin",
+  async (idToken: string, { rejectWithValue }) => {
+    try {
+      const response = await request({
+        url: `/Auth/GoogleLogin/Google`, // ✅ khớp backend endpoint
+        method: "POST",
+        data: { id_token: idToken },
+      });
+      return response;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 
 export const actionRegister = createAsyncThunk(
   "auth/actionRegister",
@@ -90,11 +143,16 @@ export const actionRegister = createAsyncThunk(
 // ======================= GET ALL USERS =======================
 export const actionGetAllUsers = createAsyncThunk(
   "auth/actionGetAllUsers",
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
     try {
+      const state: any = getState();
+      const token = state.auth.infoLogin?.accessToken;
       const response = await request({
         url: `/Auth/GetAllUsers`,
         method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       return response.data as IUser[];
     } catch (error) {
@@ -105,11 +163,16 @@ export const actionGetAllUsers = createAsyncThunk(
 // ======================= GET MY PROFILE =======================
 export const actionGetMyProfile = createAsyncThunk(
   "auth/actionGetMyProfile",
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
     try {
+      const state: any = getState();
+      const token = state.auth.infoLogin?.accessToken;
       const response = await request({
         url: `/Auth/GetMyProfile`,
         method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       return response.data as IUser;
     } catch (error) {
@@ -123,13 +186,18 @@ export const actionUpdateUser = createAsyncThunk(
   "auth/actionUpdateUser",
   async (
     { userId, data }: { userId: number; data: DynamicKeyObject },
-    { rejectWithValue }
+    { rejectWithValue, getState }
   ) => {
     try {
+      const state: any = getState();
+      const token = state.auth.infoLogin?.accessToken;
       const response = await request({
         url: `/Auth/UpdateUser/${userId}`,
         method: "PUT",
         data,
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       return response.data.user as IUser;
     } catch (error) {
@@ -141,11 +209,16 @@ export const actionUpdateUser = createAsyncThunk(
 // ======================= DELETE USER =======================
 export const actionDeleteUser = createAsyncThunk(
   "auth/actionDeleteUser",
-  async (userId: number, { rejectWithValue }) => {
+  async (userId: number, { rejectWithValue, getState }) => {
     try {
+      const state: any = getState();
+      const token = state.auth.infoLogin?.accessToken;
       await request({
         url: `/Auth/DeleteUser/${userId}`,
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       return userId;
     } catch (error) {
@@ -183,7 +256,7 @@ export const actionUpdateAvatar = createAsyncThunk(
 
 
 
-export const slice =  createSlice({
+export const slice = createSlice({
   name: "auth",
   initialState,
   reducers: {
@@ -208,31 +281,60 @@ export const slice =  createSlice({
         state.isLogin = true;
       }
     })
-    .addCase(actionLogin.rejected, (state) => {
-      state.infoLogin = initialState.infoLogin;
-      state.isLogin = false;
+      .addCase(actionLogin.rejected, (state) => {
+        state.infoLogin = initialState.infoLogin;
+        state.isLogin = false;
+      });
+    builder.addCase(actionGoogleLogin.fulfilled, (state, action) => {
+      const token = action.payload?.data?.token ?? "";
+      if (token) {
+        const decodedToken: any = jwtDecode(token);
+        state.infoLogin = {
+          ...state.infoLogin,
+          accessToken: token,
+          role: decodedToken["role"],
+          email: decodedToken["email"],
+          userId: decodedToken["nameid"],
+          expiresTime: decodedToken["exp"],
+        };
+        state.isLogin = true;
+      }
     })
+      .addCase(actionGoogleLogin.rejected, (state) => {
+        state.infoLogin = initialState.infoLogin;
+        state.isLogin = false;
+      });
+    // === actionRegister ===
     builder
-      .addCase(actionRegister.fulfilled, (state, action) => {
-        const token = action.payload?.data?.token ?? "";
-        if (token) {
-          const decodedToken: any = jwtDecode(token);
-          state.infoLogin = {
-            ...state.infoLogin,
-            accessToken: token,
-            role: decodedToken["role"],
-            email: decodedToken["email"],
-            userId: decodedToken["nameid"],
-            expiresTime: decodedToken["exp"],
-          };
-          state.isLogin = true;
-        }
-      })
       .addCase(actionRegister.rejected, (state) => {
         state.infoLogin = initialState.infoLogin;
         state.isLogin = false;
+      });
+
+    // === actionVerifyEmail ===
+    builder
+      .addCase(actionVerifyEmail.fulfilled, (state) => {
+        // Xác thực thành công → cập nhật trạng thái myProfile nếu có
+        if (state.myProfile) {
+          state.myProfile.status = "Active";
+        }
+        state.emailResend.isCountDown = false;
       })
-      // ======================= GET ALL USERS =======================
+      .addCase(actionVerifyEmail.rejected, (state, action) => {
+        state.emailResend.isCountDown = false;
+        console.error("Verify email failed", action.payload);
+      });
+
+    builder
+      .addCase(actionForgotPassword.fulfilled, (_, action) => {
+        message.success(action.payload?.message || "Gửi email thành công");
+      })
+      .addCase(actionForgotPassword.rejected, (_, action: any) => {
+        message.error(action.payload?.message || "Gửi email thất bại");
+      });
+
+
+    // ======================= GET ALL USERS =======================
     builder
       .addCase(actionGetAllUsers.fulfilled, (state, action) => {
         state.users = action.payload ?? [];
@@ -266,7 +368,7 @@ export const slice =  createSlice({
       const userId = action.payload;
       state.users = state.users.filter((u) => u.userId !== userId);
     })
-        // ======================= UPDATE AVATAR =======================
+    // ======================= UPDATE AVATAR =======================
     builder.addCase(actionUpdateAvatar.fulfilled, (state, action) => {
       const updatedUser = action.payload?.user;
       if (updatedUser) {
@@ -292,7 +394,7 @@ export const slice =  createSlice({
   }
 })
 
-export const  { logout } =  slice.actions;
+export const { logout } = slice.actions;
 
 export const selectIsLogin = (state: RootState) => state.auth.isLogin;
 export const selectInfoLogin = (state: RootState) => state.auth.infoLogin;

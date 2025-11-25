@@ -8,6 +8,7 @@ import {
   selectReviews,
   selectReviewLoading,
 } from "../../../../../store/reviewSlide";
+import { actionGetAllReplies, selectReplies } from "../../../../../store/replySlide";
 import Condition from "./Condition";
 import ReplyModal from "../../../../components/modals/reply/ReplyModal";
 
@@ -15,34 +16,39 @@ const Feedback = () => {
   const dispatch = useAppDispatch();
   const reviews = useAppSelector(selectReviews);
   const loading = useAppSelector(selectReviewLoading);
+  const replies = useAppSelector(selectReplies);
 
   const [searchProduct, setSearchProduct] = useState("");
   const [searchRating, setSearchRating] = useState("");
   const [openReply, setOpenReply] = useState(false);
   const [selectedReview, setSelectedReview] = useState<number | null>(null);
 
-  // 🟢 Gọi API khi component load
   useEffect(() => {
     dispatch(actionGetAllReviews());
+    dispatch(actionGetAllReplies());
   }, [dispatch]);
 
-  // 🟢 Hàm xóa review
-  const handleDelete = async (reviewId: number) => {
-    try {
-      await dispatch(actionDeleteReview(reviewId)).unwrap();
-      message.success("Xóa feedback thành công!");
-    } catch {
-      message.error("Không thể xóa feedback!");
-    }
-  };
+ const handleDelete = async (reviewId: number) => {
+  const isConfirmed = window.confirm("Bạn có chắc muốn xóa feedback này không?");
+  if (!isConfirmed) return;
 
-  // 🟢 Mở modal phản hồi
+  try {
+    await dispatch(actionDeleteReview(reviewId)).unwrap();
+    message.success("Xóa feedback thành công!");
+  } catch {
+    message.error("Không thể xóa feedback!");
+  }
+};
+
+
   const handleReply = (reviewId: number) => {
     setSelectedReview(reviewId);
     setOpenReply(true);
   };
 
-  // 🟢 Lọc dữ liệu
+  const hasReply = (reviewId: number) =>
+    replies.some((r) => r.reviewId === reviewId);
+
   const filteredReviews = reviews.filter(
     (r) =>
       r.productName.toLowerCase().replace(/\s+/g, "").includes(
@@ -69,9 +75,9 @@ const Feedback = () => {
           <div className="px-3 py-2 col-span-2">Khách hàng</div>
           <div className="px-3 py-2 col-span-2">Sản phẩm</div>
           <div className="px-3 py-2 col-span-2">Đánh giá</div>
-          <div className="px-3 py-2 col-span-3">Bình luận</div>
+          <div className="px-3 py-2 col-span-2">Bình luận</div>
           <div className="px-3 py-2 col-span-1">Ngày</div>
-          <div className="px-3 py-2 col-span-1">Hành động</div>
+          <div className="px-3 py-2 col-span-2">Hành động</div>
         </div>
 
         {/* Body */}
@@ -85,56 +91,48 @@ const Feedback = () => {
               key={r.reviewId}
               className="grid grid-cols-12 text-center text-sm border-b-[0.05px] border-gray-300"
             >
-              <div className="px-3 py-2 font-medium col-span-1">
-                {r.reviewId}
-              </div>
+              <div className="px-3 py-2 font-medium col-span-1">{r.reviewId}</div>
               <div className="px-3 py-2 col-span-2 truncate" title={r.userEmail}>
                 {r.userEmail}
               </div>
-              <div
-                className="px-3 py-2 col-span-2 truncate"
-                title={r.productName}
-              >
+              <div className="px-3 py-2 col-span-2 truncate" title={r.productName}>
                 {r.productName}
               </div>
               <div className="px-3 py-2 flex justify-center items-center col-span-2">
                 <Rate disabled defaultValue={r.rating} />
               </div>
-              <div
-                className="px-3 py-2 text-left col-span-3 truncate"
-                title={r.comment}
-              >
+              <div className="px-3 py-2 text-left col-span-2 truncate" title={r.comment}>
                 {r.comment}
               </div>
               <div className="px-3 py-2 col-span-1">
                 {dayjs(r.createdAt).format("DD/MM/YYYY")}
               </div>
-              <div className="px-3 py-2 flex gap-2 justify-center col-span-1">
-                <Button
-                  color="gold"
-                  variant="outlined"
-                  onClick={() => handleReply(r.reviewId)}
-                >
-                  Phản hồi
-                </Button>
-                <Button
-                  color="danger"
-                  variant="outlined"
-                  onClick={() => handleDelete(r.reviewId)}
-                >
+              <div className="px-3 py-2 flex gap-2 justify-center col-span-2">
+                {!hasReply(r.reviewId) ? (
+                  <Button color="gold" variant="outlined" size="small" onClick={() => handleReply(r.reviewId)}>
+                    Phản hồi
+                  </Button>
+                ) : (
+                  <Button
+                    color="blue"
+                    variant="outlined"
+                    onClick={() => handleReply(r.reviewId)}
+                    size="small"
+                  >
+                    Đã phản hồi 
+                  </Button>
+                )}
+                <Button color="danger" variant="outlined" size="small" onClick={() => handleDelete(r.reviewId)}>
                   Xóa
                 </Button>
               </div>
             </div>
           ))
         ) : (
-          <div className="text-center py-4 text-gray-500">
-            Không có feedback nào.
-          </div>
+          <div className="text-center py-4 text-gray-500">Không có feedback nào.</div>
         )}
       </div>
 
-      {/* Modal phản hồi */}
       {selectedReview && (
         <ReplyModal
           open={openReply}

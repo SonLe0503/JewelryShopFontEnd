@@ -8,54 +8,59 @@ import { actionGetAllProducts, selectProducts } from "../../../store/productSlid
 import Login from "../login";
 import URL from "../../../constrants/url";
 import { setOpenLogin } from "../../../store/uiSlide";
+import { useNavigate } from "react-router-dom";
+import { actionGetWishlist, selectWishlist } from "../../../store/wishlistSlide";
+import { BASE_URL } from "../../../utils/app";
 
 const WishList = () => {
+  const navigate = useNavigate();
+  const wishlistIds = useSelector(selectWishlist);
   const dispatch = useDispatch<any>();
   const isLogin = useSelector(selectIsLogin);
   const infoLogin = useSelector(selectInfoLogin);
   const { orders } = useSelector(selectOrder);
   const products = useSelector(selectProducts);
-
   const [wishlist, setWishlist] = useState<any[]>([]);
   const [suggested, setSuggested] = useState<any[]>([]);
 
-  // Lấy dữ liệu sản phẩm và đơn hàng
   useEffect(() => {
     dispatch(actionGetAllProducts());
     if (isLogin && infoLogin.userId) {
       dispatch(actionGetOrdersByUser(Number(infoLogin.userId)));
+      dispatch(actionGetWishlist(Number(infoLogin.userId)));
     }
   }, [dispatch, isLogin, infoLogin.userId]);
 
-  // Khi đơn hàng thay đổi, tạo wishlist từ các sản phẩm đã mua
   useEffect(() => {
-    if (orders.length > 0 && products.length > 0) {
+    if (products.length > 0) {
       const purchasedProductIds = orders.flatMap((order: any) =>
         order.orderDetails.map((od: any) => od.productId)
       );
 
-      const purchasedProducts = products.filter(p =>
-        purchasedProductIds.includes(p.productId)
-      );
+      const allIds = Array.from(new Set([...wishlistIds, ...purchasedProductIds]));
+      const selectedProducts = products.filter(p => allIds.includes(p.productId));
 
-      setWishlist(purchasedProducts);
+      setWishlist(selectedProducts);
 
-      // Suggested products: cùng category với sản phẩm đã mua
-      const categories = Array.from(new Set(purchasedProducts.map(p => p.categoryId)));
+      const categories = Array.from(new Set(selectedProducts.map(p => p.categoryId)));
       const suggestedProducts = products.filter(
-        p => categories.includes(p.categoryId) && !purchasedProductIds.includes(p.productId)
+        p => categories.includes(p.categoryId) && !allIds.includes(p.productId)
       );
 
-      setSuggested(suggestedProducts.slice(0, 8)); // lấy max 8 gợi ý
+      setSuggested(suggestedProducts.slice(0, 8));
     }
-  }, [orders, products]);
+  }, [orders, products, wishlistIds]);
+
+  const handleClickDetail = (id: number) => {
+    window.location.href = `${URL.Detail.replace(":id", id.toString())}`;
+  };
 
   return (
     <>
       <div className="w-full">
         {/* Wishlist section */}
         <div className="text-center py-10">
-          <h2 className="text-xl font-bold">DANH SÁCH YÊU THÍCH</h2>
+          <h2 className="text-xl font-light">DANH SÁCH YÊU THÍCH</h2>
           {wishlist.length === 0 ? (
             <div className="mt-4">
               <p className="text-black text-[12px]">
@@ -71,17 +76,40 @@ const WishList = () => {
                 </a>{" "}
                 để lưu danh sách yêu thích trên tất cả các thiết bị của bạn.
               </p>
-              <Button className="mt-4 hover:!bg-black hover:!text-white !border-black  rounded-md px-6 py-2">
+              <Button className="mt-4 hover:!bg-black hover:!text-white !border-black  rounded-md px-6 py-2" onClick={() => navigate(URL.Product)}>
                 TIẾP TỤC MUA SẮM
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8">
-              {wishlist.map(item => (
-                <div key={item.productId} className="border rounded-lg p-2">
-                  <img src={item.imageUrl} alt={item.name} className="w-full object-cover rounded-md" />
-                  <p className="mt-2 text-sm">{item.name}</p>
-                  <p className="text-sm text-gray-600">{item.price.toLocaleString("vi-VN")} VND</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 px-4 mt-4">
+              {wishlist.map((item) => (
+                <div
+                  key={item.productId}
+                  className="bg-white rounded-lg shadow-[0_3px_10px_rgb(0,0,0,0.2)] hover:shadow-2xl transition overflow-hidden"
+                >
+                  <div className="relative cursor-pointer" onClick={() => handleClickDetail(item.productId)}>
+                    <img
+                      src={`${BASE_URL}${item.imageUrl}`}
+                      alt={item.name}
+                      className="w-full h-80 object-cover"
+                    />
+                    {/* Hiển thị thông báo hết hàng */}
+                    {item.stockQuantity === 0 && (
+                      <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center text-gray-500 text-sm">
+                        Hết hàng
+                      </div>
+                    )}
+
+                  </div>
+
+                  <div className="p-4">
+                    <div className="font-light text-[14px] truncate" title={item.name}>
+                      {item.name}
+                    </div>
+                    <div className="text-[14px] font-light">
+                      {item.price.toLocaleString("vi-VN")} <span>VND</span>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -91,15 +119,13 @@ const WishList = () => {
         {/* Suggested items */}
         {suggested.length > 0 && (
           <div className="px-6 md:px-20 py-10">
-            <h3 className="text-center text-lg font-bold mb-6">GỢI Ý CHO BẠN</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <h3 className="text-center text-lg font-light mb-6">GỢI Ý CHO BẠN</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-4">
               {suggested.map(item => (
-                <div key={item.productId} className="flex flex-col items-center">
-                  <div className="relative w-full">
-                    <img src={item.imageUrl} alt={item.name} className="w-full object-cover rounded-md" />
-                    <button className="absolute bottom-2 right-2 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow">
-                      +
-                    </button>
+                <div key={item.productId} className="flex flex-col items-center bg-white rounded-lg shadow-[0_3px_10px_rgb(0,0,0,0.2)] hover:shadow-2xl transition overflow-hidden">
+                  <div className="relative w-full" onClick={() => handleClickDetail(item.productId)}>
+                    <img src={`${BASE_URL}${item.imageUrl}`} alt={item.name} className="w-full object-cover rounded-md" />
+
                   </div>
                   <p className="mt-2 text-center text-[13px] font-sans">{item.name}</p>
                   <p className="text-center text-[13px] font-sans">

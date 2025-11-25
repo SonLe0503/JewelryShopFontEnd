@@ -87,13 +87,18 @@ export const actionCreateReply = createAsyncThunk(
   "reply/actionCreateReply",
   async (
     data: { reviewId: number; userId: number; comment: string },
-    { rejectWithValue }
+    { rejectWithValue, getState }
   ) => {
+    const state: any = getState();
+    const token = state.auth.infoLogin?.accessToken;
     try {
       const res = await request({
         url: `/Reply/Create`,
         method: "POST",
         data,
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       return res.data;
     } catch (error) {

@@ -4,5 +4,43 @@
     width: 100%;
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
   }
   
+@keyframes scrollX {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scrollX {
+  display: flex;
+  animation: scrollX 20s linear infinite;
+  width: max-content;
+}
+
+::-webkit-scrollbar {
+  width: 6px; /* 👈 chỉnh nhỏ hơn hoặc lớn hơn tuỳ bạn */
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1; /* màu nền thanh cuộn */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #b5b5b5; /* màu thanh cuộn chính */
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8c8c8c; /* màu khi hover */
+}
+
+/* 🔧 Firefox */
+* {
+  scrollbar-width: thin; /* làm mảnh trên Firefox */
+  scrollbar-color: #b5b5b5 #f1f1f1;
+}
