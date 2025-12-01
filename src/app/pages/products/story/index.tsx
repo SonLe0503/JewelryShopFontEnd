@@ -23,13 +23,13 @@ const ProductStoryPage = () => {
 
                 <div className="relative z-10 max-w-3xl mx-auto">
                     <h1 className="text-5xl md:text-6xl font-extralight tracking-wide text-gray-900">
-                        Product Stories
+                        Hi!Jeans Product Stories
                     </h1>
                     <p className="text-gray-700 font-light mt-4 text-lg md:text-xl">
-                        Khám phá câu chuyện đằng sau mỗi món trang sức.
+                        Khám phá câu chuyện đằng sau mỗi sản phẩm của Hi!Jeans.
                     </p>
-                    <p className="mt-4 text-purple-700 italic font-light">
-                        “Mỗi món trang sức đều mang một câu chuyện riêng…”
+                    <p className="mt-4 text-purple-700 italic font-light text-left">
+                        “Hi!Jeans tin rằng ẩn sau mỗi chiếc ví, mũ, túi của mình là một linh hồn đang chờ được kể chuyện. Từ những mảnh vải jean cũ kỹ tưởng chừng vô tri, các nghệ nhân đã “thổi hồn” để biến chúng thành phụ kiện thời trang độc đáo. Đặc biệt, mỗi sản phẩm đều đi kèm một thẻ câu chuyện hoặc mã QR độc quyền – như cuốn nhật ký số lưu giữ toàn bộ hành trình tái sinh. Chỉ bằng một lần quét mã, khách hàng có thể tìm hiểu nguồn gốc chiếc jean ban đầu, từng đường kim mũi chỉ trong công đoạn tái chế, ý tưởng thiết kế sáng tạo, thậm chí đọc cả lời nhắn nhủ riêng mà Hi!Jeans gửi gắm đến chủ nhân mới. Cách làm này không chỉ tạo dấu ấn khác biệt cho thương hiệu, mà còn dẫn đầu xu hướng thời trang bền vững: ứng dụng công nghệ để bồi đắp kết nối cảm xúc giữa con người và sản phẩm”
                     </p>
                 </div>
             </div>
