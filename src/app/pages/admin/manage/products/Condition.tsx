@@ -9,10 +9,13 @@ interface ConditionProps {
   searchCollection: string;
   setSearchCollection: (value: string) => void;
   collections: string[];
+  searchStatus: string;
+  setSearchStatus: (value: string) => void;
+  productStatus: string[];
 }
 
 const Condition = (props: ConditionProps) => {
-  const { searchProductName, searchCategoryName, setSearchProductName, setSearchCategoryName, categories, searchCollection, setSearchCollection, collections } = props;
+  const { searchProductName, searchCategoryName, setSearchProductName, setSearchCategoryName, categories, searchCollection, setSearchCollection, collections, productStatus, searchStatus, setSearchStatus } = props;
   const handleCategoryChange = (e: string) => {
     setSearchCategoryName(e);
   };
@@ -47,6 +50,15 @@ const Condition = (props: ConditionProps) => {
           options={[
             { value: "", label: "Tất cả BST" },
             ...collections.map((c) => ({ value: c, label: c })),
+          ]}
+        />
+        <Select
+          className="w-full"
+          value={searchStatus}
+          onChange={(value) => setSearchStatus(value)}
+          options={[
+            { value: "", label: "Tất cả trạng thái" },
+            ...productStatus.map((o) => ({ value: o, label: o })),
           ]}
         />
       </div>

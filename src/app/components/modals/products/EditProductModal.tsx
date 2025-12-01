@@ -53,7 +53,6 @@ const EditProductModal = ({
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      console.log("Validated values:", values);
       if (!product) return;
 
       const formData = new FormData();

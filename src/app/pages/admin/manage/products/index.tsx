@@ -33,6 +33,7 @@ import ProductImagesModal from "../../../../components/modals/products/ProductIm
 
 const ManageProduct = () => {
   const dispatch = useAppDispatch();
+  const productStatus = ["Active", "Deleted"];
 
   // --- CATEGORY STATES ---
   const categories = useSelector(selectCategories);
@@ -53,6 +54,7 @@ const ManageProduct = () => {
   const [searchProductName, setSearchProductName] = useState("");
   const [searchCategoryName, setSearchCategoryName] = useState("");
   const [searchCollection, setSearchCollection] = useState("");
+  const [searchStatus, setSearchStatus] = useState("");
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
@@ -86,7 +88,8 @@ const ManageProduct = () => {
     return (
       productName.includes(searchName) &&
       categoryName.includes(searchCategory) &&
-      collectionName.includes(searchCollectionName)
+      collectionName.includes(searchCollectionName) &&
+      (searchStatus ? product.status === searchStatus : true)
     );
   });
 
@@ -103,6 +106,7 @@ const ManageProduct = () => {
     if (window.confirm("Bạn có chắc muốn xóa sản phẩm này không?")) {
       try {
         await dispatch(actionDeleteProduct(id)).unwrap();
+        dispatch(actionGetAllProducts());
         alert("Đã xóa sản phẩm!");
       } catch {
         alert("Không thể xóa sản phẩm!");
@@ -113,6 +117,7 @@ const ManageProduct = () => {
   const handleDeleteCategory = async (id: number) => {
     try {
       await dispatch(actionDeleteCategory(id)).unwrap();
+      dispatch(actionGetAllCategories()); 
       alert("Xóa danh mục thành công!");
     } catch {
       alert("Không thể xóa danh mục!");
@@ -122,6 +127,7 @@ const ManageProduct = () => {
   const handleDeleteCollection = async (id: number) => {
     try {
       await dispatch(actionDeleteCollection(id)).unwrap();
+      dispatch(actionGetAllCollections());
       alert("Xóa bộ sưu tập thành công!");
     } catch {
       alert("Không thể xóa bộ sưu tập!");
@@ -291,6 +297,9 @@ const ManageProduct = () => {
                   searchCollection={searchCollection}
                   setSearchCollection={setSearchCollection}
                   collections={uniqueCollections}
+                  searchStatus={searchStatus}
+                  setSearchStatus={setSearchStatus}
+                  productStatus={productStatus}               
                 />
 
                 <div className="flex justify-end mb-2">
@@ -343,7 +352,7 @@ const ManageProduct = () => {
                       </div>
 
                       <div className="px-3 py-2 col-span-1">
-                        {p.price.toLocaleString()} đ
+                        {Number(p.price || 0).toLocaleString()}đ
                       </div>
 
                       <div className="py-2 col-span-1">

@@ -120,12 +120,14 @@ const ManageAccount = () => {
                 <Button
                   className="!bg-blue-500 !text-white px-3 py-1 rounded"
                   onClick={() => handleEdit(u)}
+                  size="small"
                 >
                   Edit
                 </Button>
                 <Button
                   className="!bg-red-500 !text-white px-3 py-1 rounded"
                   onClick={() => handleDelete(u.userId)}
+                  size="small"
                 >
                   Delete
                 </Button>

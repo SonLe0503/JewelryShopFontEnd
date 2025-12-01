@@ -1,6 +1,6 @@
 import { Form, Input, message } from "antd";
 import { useAppDispatch } from "../../../../store";
-import { actionCreateCollection } from "../../../../store/collectionSlide";
+import { actionCreateCollection, actionGetAllCollections } from "../../../../store/collectionSlide";
 import BaseModal from "../BaseModal";
 import React from "react";
 
@@ -27,6 +27,7 @@ const AddCollectionModal = ({ open, onClose }: AddCollectionModalProps) => {
 
       message.success("Tạo bộ sưu tập thành công!");
       form.resetFields();
+      dispatch(actionGetAllCollections());
       onClose();
     } catch (error: any) {
       message.error(error?.message || "Không thể tạo bộ sưu tập");

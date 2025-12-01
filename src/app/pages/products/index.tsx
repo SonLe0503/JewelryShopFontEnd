@@ -23,19 +23,19 @@ const Product = () => {
 
 
   const [sort, setSort] = useState("featured");
-  const [filter, setFilter] = useState(categoryQuery || "All");
+  const [filter, setFilter] = useState(categoryQuery || "Tất cả");
   const [visibleCount, setVisibleCount] = useState(8);
 
   const user = useSelector(selectInfoLogin);
   const userId = user?.userId;
   const products = useSelector(selectProducts);
 
-  const types = ["All", ...new Set(products.map((w) => w.categoryName))];
+  const types = ["Tất cả", ...new Set(products.map((w) => w.categoryName))];
 
   const filteredProducts = products
     .filter((p) => {
       const byStatus = p.status === "Active";
-      const byCategory = filter === "All" || p.categoryName === filter;
+      const byCategory = filter === "Tất cả" || p.categoryName === filter;
       const byCollection = !collectionId || p.collectionId === Number(collectionId);
       const byDiscount = discountQuery === "true" ? p.discount > 0 : true;
       return byStatus && byCategory && byCollection && byDiscount;

@@ -1,6 +1,7 @@
 import type { JSX } from "react";
 import Header from "../app/components/header";
 import Footer from "../app/components/footer";
+import ChatWidget from "../app/pages/chat";
 
 interface DefaultLayoutProps {
   children: JSX.Element;
@@ -13,6 +14,7 @@ const DefaultLayout = ({ children }: DefaultLayoutProps) => {
         <Header />
         <main className="flex-1 w-full">{children}</main>
         <Footer />
+        <ChatWidget />
       </div>
     </>
   );

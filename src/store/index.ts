@@ -18,6 +18,7 @@ import replySlice from "./replySlide";
 import reviewSlice from "./reviewSlide";
 import uiSlice from "./uiSlide";
 import wishlistSlice from "./wishlistSlide";
+import chatSlice from "./chatSlide";
 const persistConfig = {
   key: "auth",
   storage,
@@ -37,7 +38,8 @@ const reducers = {
   review: reviewSlice,
   reply: replySlice,
   ui: uiSlice,
-  wishlist: wishlistSlice
+  wishlist: wishlistSlice,
+  chat: chatSlice,
 };
 
 const rootReducer = combineReducers(reducers);

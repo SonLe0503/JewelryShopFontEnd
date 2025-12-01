@@ -2,6 +2,7 @@ import { Form, Input, message } from "antd";
 import { useEffect, useState } from "react";
 import { useAppDispatch } from "../../../../store";
 import {
+  actionGetAllCollections,
   actionUpdateCollection,
   type ICollection,
 } from "../../../../store/collectionSlide";
@@ -47,6 +48,7 @@ const EditCollectionModal = ({
       ).unwrap();
 
       message.success("Cập nhật bộ sưu tập thành công!");
+      dispatch(actionGetAllCollections());
       onClose();
     } catch (error: any) {
       message.error(error?.message || "Không thể cập nhật bộ sưu tập");

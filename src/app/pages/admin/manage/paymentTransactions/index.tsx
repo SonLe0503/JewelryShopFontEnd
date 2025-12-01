@@ -95,6 +95,7 @@ const ManagePayment = () => {
                 <Button
                   className="!bg-blue-500 !text-white px-3 py-1 rounded"
                   onClick={() => handleEdit(t)}
+                  size="small"
                 >
                   Chi tiết
                 </Button>

@@ -44,3 +44,32 @@
   scrollbar-width: thin; /* làm mảnh trên Firefox */
   scrollbar-color: #b5b5b5 #f1f1f1;
 }
+
+/* Rung nhẹ */
+@keyframes chatShake {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-2px, 2px); }
+}
+
+/* Viền lan nhẹ */
+@keyframes chatPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(0, 0, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  }
+}
+
+.chat-button {
+  animation: chatShake 0.8s infinite, chatPulse 2s infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+

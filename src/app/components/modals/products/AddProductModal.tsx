@@ -56,9 +56,9 @@ const AddProductModal = ({ open, onClose }: AddProductModalProps) => {
 
       setLoading(true);
       const res = await dispatch(actionCreateProduct(formData)).unwrap();
-      message.success(`Đã thêm sản phẩm "${res.name}" thành công!`);
+      message.success(`Đã thêm sản phẩm "${res.product.name}" thành công!`);
       onClose();
-      dispatch(actionGetAllProducts());
+      await dispatch(actionGetAllProducts());
     } catch (error) {
       console.error(error);
       message.error("Không thể thêm sản phẩm. Vui lòng thử lại.");
@@ -75,7 +75,7 @@ const AddProductModal = ({ open, onClose }: AddProductModalProps) => {
       onSubmit={handleSubmit}
       loading={loading}
     >
-      <Form layout="vertical" form={form} preserve={false}>
+      <Form layout="vertical" form={form}>
         <Form.Item
           label="Tên sản phẩm"
           name="name"

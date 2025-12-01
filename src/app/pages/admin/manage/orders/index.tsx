@@ -167,6 +167,11 @@ const ManageOrder = () => {
             </div>
           )
         })}
+        {filterOrders.length === 0 && (
+            <div className="text-center text-gray-500 py-4">
+              Không tìm thấy đơn hàng nào.
+            </div>
+          )}
       </div>
 
       {/* Modal xem chi tiết */}

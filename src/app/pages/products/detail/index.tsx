@@ -166,22 +166,37 @@ const Detail = () => {
         {/* 📋 Thông tin sản phẩm */}
         <div className="flex flex-col gap-6">
           <div>
-            <h3 className="text-sm text-gray-500 uppercase tracking-wide">
+            <h3 className="text-sm text-gray-500 uppercase tracking-wide font-light">
               {product?.categoryName}
             </h3>
-            <h1 className="text-3xl font-bold text-black mt-2">
+            <h1 className="text-3xl font-light text-black mt-2">
               {product?.name}
             </h1>
             <div className="flex items-center gap-3 mt-3">
-              <p className="text-2xl font-semibold text-black">
-                {product?.price?.toLocaleString("vi-VN")} ₫
+              {/* Giá sau giảm */}
+              <p className="text-2xl font-light text-black">
+                {(
+                  (Number(product?.price ?? 0)) -
+                  (Number(product?.price ?? 0) * (product?.discount ?? 0)) / 100
+                ).toLocaleString("vi-VN")}{" "}
+                VND
               </p>
+
+              {/* Badge giảm giá */}
               {(product?.discount ?? 0) > 0 && (
-                <span className="text-sm bg-red-500 text-white px-2 py-1 rounded">
+                <span className="text-sm font-light bg-red-500 text-white px-2 py-1 rounded">
                   -{product?.discount}%
                 </span>
               )}
             </div>
+
+            {/* Giá gốc bị gạch nếu có giảm */}
+            {(product?.discount ?? 0) > 0 && (
+              <p className="text-sm text-gray-500 line-through mt-1">
+                {product?.price?.toLocaleString("vi-VN")} VND
+              </p>
+            )}
+
             {product?.stockQuantity === 0 ? (
               <p className="text-red-500 mt-2 font-medium">Hết hàng</p>
             ) : (
@@ -233,12 +248,12 @@ const Detail = () => {
 
       {/* 💬 Đánh giá & phản hồi */}
       <div className="max-w-5xl mx-auto mt-20 px-4">
-        <h2 className="text-2xl font-bold mb-6">Đánh giá & Nhận xét</h2>
+        <h2 className="text-2xl font-light mb-6">Đánh giá & Nhận xét</h2>
 
         {product?.reviews && product.reviews.length > 0 ? (
           <div className="space-y-6">
             <div className="flex items-center gap-3 border-b border-gray-300 pb-4">
-              <p className="text-lg font-semibold">
+              <p className="text-lg font-light">
                 Trung bình:{" "}
                 {(
                   product.reviews.reduce((sum, r) => sum + r.rating, 0) /
@@ -246,7 +261,7 @@ const Detail = () => {
                 ).toFixed(1)}{" "}
                 ⭐
               </p>
-              <span className="text-gray-500">
+              <span className="text-gray-500 font-light">
                 ({product.reviews.length} đánh giá)
               </span>
             </div>
@@ -262,14 +277,14 @@ const Detail = () => {
                   className="border-b border-gray-300 pb-4 flex flex-col gap-2"
                 >
                   <div className="flex items-center justify-between">
-                    <p className="font-medium text-gray-900">
+                    <p className="font-light text-gray-900">
                       {review.userEmail}
                     </p>
                     <p className="text-yellow-500 text-sm">
                       {"⭐".repeat(review.rating)}
                     </p>
                   </div>
-                  <p className="text-gray-700">{review.comment}</p>
+                  <p className="text-gray-700 font-light">{review.comment}</p>
                   <p className="text-xs text-gray-400">
                     {dayjs(review.createdAt).format("DD/MM/YYYY HH:mm")}
                   </p>
@@ -280,7 +295,7 @@ const Detail = () => {
                       {reviewReplies.map((reply) => (
                         <div key={reply.replyId}>
                           <p className="text-sm text-gray-800">
-                            <span className="font-semibold text-gray-900">
+                            <span className="font-light text-gray-900">
                               Phản hồi:
                             </span>{" "}
                             {reply.comment}
@@ -297,7 +312,7 @@ const Detail = () => {
             })}
           </div>
         ) : (
-          <p className="text-gray-500">Chưa có đánh giá nào cho sản phẩm này.</p>
+          <p className="text-gray-500 font-light">Chưa có đánh giá nào cho sản phẩm này.</p>
         )}
       </div>
     </div>
