@@ -1,1 +1,1 @@
-export const BASE_URL = "http://localhost:5183";
+export const BASE_URL = "https://hijean.io.vn";

@@ -1,5 +1,5 @@
 import { Button } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../../store";
 import {
@@ -16,13 +16,8 @@ import { BASE_URL } from "../../../utils/app";
 import { actionGetAllCollections, selectCollectionLoading, selectCollections } from "../../../store/collectionSlide";
 import { useNavigate } from "react-router-dom";
 import URL from "../../../constrants/url";
-
-const images = [
-  "https://scontent.fhan18-1.fna.fbcdn.net/v/t39.30808-6/557712262_122134652078893442_8421142447824040983_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHb2Au68d-cpoPgNjn1cPzPJ0TGDr613q0nRMYOvrXerVorIDHs63lxjY5kqU8PPhm7bnpInnbMoQhQrvTv46bO&_nc_ohc=-TYKfBV3JWMQ7kNvwGBKxyL&_nc_oc=AdlEB-_PBmdhYfSKWdVnizIyEbwIP130GWAelc6oqIdmNY3Tz6vc80wiVYNcRoyQDMc&_nc_zt=23&_nc_ht=scontent.fhan18-1.fna&_nc_gid=bseoMvKYAbqpThD2Wk_nSA&oh=00_Afjf2IYNmQoUg_Z0VaZw2ZJIa2DWSKTRb5ow7_69vP1VRg&oe=6927E9E6",
-  // "https://scontent.fhan20-1.fna.fbcdn.net/v/t39.30808-6/557719957_122134819232893442_88520308609150199_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=127cfc&_nc_ohc=EG_eCNqfk-YQ7kNvwH4dNEy&_nc_oc=AdlUBUXLPAJdrAiLqi2NMGPS1QRvu5oUUFvAKW6WYeV92Ajk_Hb5B9pt47Oy1MGqNaw&_nc_zt=23&_nc_ht=scontent.fhan20-1.fna&_nc_gid=tFH3poJDqGng28cgOpfrKA&oh=00_Afhb_z9Njdm7pn8b2N7iyMSlAaIDtKTwOnFyM7GsHUzFnw&oe=6919DD2E",
-  // "https://scontent.fhan20-1.fna.fbcdn.net/v/t39.30808-6/565703485_122136801320893442_7253931868921607037_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=127cfc&_nc_ohc=V5IabCGk_lgQ7kNvwFyVdYO&_nc_oc=AdmxZMaOjW034_xnusKx3yi7mnlLlGe8L4ZqcXxf-azc3cz6DfiZhYb7vyAJd0NY8_k&_nc_zt=23&_nc_ht=scontent.fhan20-1.fna&_nc_gid=pCklWZNG1Ub-IkERTN0MEw&oh=00_AfiZ52PbQgf9GjITfL_KTtXXw1k9XaAef_vJdkLtj4OuVA&oe=6919CF46",
-  // "https://scontent.fhan2-5.fna.fbcdn.net/v/t39.30808-6/580528968_122140405982893442_3734207816748975344_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_ohc=AZMzsOOnh-AQ7kNvwGOIJzq&_nc_oc=AdnEZj1h7GjAjdBTqWMB31O9E3NCK8GTC2K-GuJdjyVcEGVz-NSYG_9YuiOIlhlnqDc&_nc_zt=23&_nc_ht=scontent.fhan2-5.fna&_nc_gid=CHuPhWZ6P9SH297nyRGWVA&oh=00_AfjEkcks00cJvT_xbtu_6b4YXm4yk2KKrlu3IN8IjxYtGQ&oe=6919D858"
-];
+import bannerhome1 from "../../../assets/images/bannerhome1.jpg";
+import bannerhome2 from "../../../assets/images/bannerhome2.jpg";
 
 const Home = () => {
   const dispatch = useAppDispatch();
@@ -35,20 +30,11 @@ const Home = () => {
   const loadingProduct = useSelector(selectProductLoading);
   const loadingCollection = useSelector(selectCollectionLoading);
 
-  const [current, setCurrent] = useState(0);
+
 
   const handleClickDetail = (id: number) => {
     navigate(URL.Detail.replace(":id", id.toString()));
   };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % images.length);
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
-
 
   useEffect(() => {
     dispatch(actionGetAllCategories());
@@ -58,27 +44,13 @@ const Home = () => {
 
   return (
     <>
-      <section id="home" className="relative h-[80vh] overflow-hidden flex items-center justify-center">
-
-        <div
-          className="absolute inset-0 flex transition-transform duration-1000 ease-in-out"
-          style={{
-            width: `${images.length * 100}%`,
-            transform: `translateX(-${current * (100 / images.length)}%)`,
-          }}
-        >
-          {images.map((src, index) => (
-            <div
-              key={index}
-              className="w-full h-full bg-cover bg-center flex-shrink-0"
-              style={{
-                backgroundImage: `url(${src})`,
-                width: `${100 / images.length}%`,
-              }}
-            />
-          ))}
-        </div>
-
+      <section
+        id="home"
+        className="relative h-[80vh] flex items-center justify-center bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${bannerhome1})`,
+        }}
+      >
         <div className="relative z-10 bg-black/40 backdrop-blur-sm border border-white/20 p-6 rounded-2xl text-center text-white max-w-2xl shadow-lg">
           <h1 className="text-4xl md:text-5xl font-light mb-4 tracking-wide">
             BỘ SƯU TẬP JEAN 2025
@@ -94,6 +66,7 @@ const Home = () => {
           </Button>
         </div>
       </section>
+
 
       <section id="products" className="py-12 px-6">
         <h2 className="text-2xl font-light text-center mb-8">
@@ -157,7 +130,8 @@ const Home = () => {
         ) : (
           <div className="grid md:grid-cols-2 gap-6">
             {/* Banner bên trái */}
-            <div className="relative h-[400px] bg-[url('https://scontent.fhph1-2.fna.fbcdn.net/v/t39.30808-6/571358429_122137898744893442_4494606792210732567_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeHoY74N3-ckoRqTrbiYY7rqUj8goJHN83JSPyCgkc3zco_LZ3iNFKEmfl5mFoUF6e5b77xeLiUDC7fcNKR0Fumt&_nc_ohc=u-gC-Of5RagQ7kNvwFQMo0F&_nc_oc=AdkNv7Q6gKxurkrajBk4Cw0ORMt8wxHK5xyA8nxhw_yJTHZOoDHXOlOUHdnMe_jqC5hC5bD6Mt_Vxev2U1qvxHYY&_nc_zt=23&_nc_ht=scontent.fhph1-2.fna&_nc_gid=qFfWsFbXD_qVaqFSYtnwwQ&oh=00_Afg53CiXIch10QhKa2ATCMSfN3qu3W-44Ljo1jmjAK7GHA&oe=69280E15')] bg-cover bg-center rounded-lg overflow-hidden">
+            <div className="relative h-[400px] bg-cover bg-center rounded-lg overflow-hidden"
+              style={{ backgroundImage: `url(${bannerhome2})` }}>
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col items-center justify-end text-white text-center p-6">
                 <h2 className="text-3xl font-light mb-2">Denim Everyday</h2>
                 <p className="mb-4 font-light text-[14px]">Những mẫu jean thời thượng cho cuộc sống năng động</p>
