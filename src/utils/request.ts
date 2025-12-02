@@ -2,7 +2,7 @@ import axios, { type AxiosRequestConfig } from "axios";
 
 
 const instance = axios.create({
-  baseURL: "https://hijean.io.vn",
+  baseURL: "https://hijean.io.vn/api",
   headers: {
     "Content-Type": "application/json"
   }
