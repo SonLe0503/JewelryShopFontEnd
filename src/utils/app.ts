@@ -1,1 +1,1 @@
-export const BASE_URL = "https://hijean.io.vn";
+export const BASE_URL = "https://shop.hijean.io.vn";

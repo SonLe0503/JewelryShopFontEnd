@@ -39,7 +39,7 @@ const ChatWidget = () => {
     // 🔌 Khởi tạo SignalR
     useEffect(() => {
         const connect = new HubConnectionBuilder()
-            .withUrl("https://hijean.io.vn/chatHub", {
+            .withUrl("https://shop.hijean.io.vn/chatHub", {
                 withCredentials: true
             })
             .withAutomaticReconnect()
