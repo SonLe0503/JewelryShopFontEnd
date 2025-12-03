@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import URL from "../../../constrants/url";
 import bannerhome1 from "../../../assets/images/bannerhome1.jpg";
 import bannerhome2 from "../../../assets/images/bannerhome2.jpg";
+import noImage from "../../../assets/images/noImage.jpg";
 
 const Home = () => {
   const dispatch = useAppDispatch();
@@ -99,7 +100,7 @@ const Home = () => {
                         src={
                           firstActiveProduct
                             ? `${BASE_URL}${firstActiveProduct.imageUrl}`
-                            : "https://i.sstatic.net/y9DpT.jpg"
+                            : `${noImage}`
                         }
                         alt={cat.categoryName}
                         className="w-full h-full object-cover"
@@ -154,7 +155,7 @@ const Home = () => {
                       src={
                         `${BASE_URL}${prod.imageUrl}` ||
                         prod.productImages?.[0] ||
-                        "https://i.sstatic.net/y9DpT.jpg"
+                        `${noImage}`
                       }
                       alt={prod.name}
                       className="w-full h-80 object-cover"
@@ -202,7 +203,7 @@ const Home = () => {
                     src={
                       firstProduct
                         ? `${BASE_URL}${firstProduct.imageUrl}`
-                        : "https://i.sstatic.net/y9DpT.jpg"
+                        : `${noImage}`
                     }
                     alt={col.name}
                     className="w-full h-[300px] object-cover"
