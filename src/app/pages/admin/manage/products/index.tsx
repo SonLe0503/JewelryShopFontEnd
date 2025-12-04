@@ -269,7 +269,9 @@ const ManageProduct = () => {
                   onChange={(value) => setSelectedCollection(value)}
                   className="w-1/2"
                 >
-                  {collections.map((c) => (
+                  {collections
+                  .filter((c) => c.status === "Active")
+                  .map((c) => (
                     <Select.Option
                       key={c.collectionId}
                       value={c.name}

@@ -200,7 +200,9 @@ const Home = () => {
           <p className="text-center text-gray-400">Chưa có bộ sưu tập nào.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {collections.map((col) => {
+            {collections
+            .filter((col) => col.status === "Active")
+            .map((col) => {
               // Lấy sản phẩm có ảnh đầu tiên trong mỗi bộ sưu tập
               const firstProduct = col.products?.find(
                 (p) => p.imageUrl && p.status === "Active"
