@@ -104,7 +104,9 @@ const AddProductModal = ({ open, onClose }: AddProductModalProps) => {
           rules={[{ required: false, message: "Chọn BST" }]}
         >
           <Select placeholder="Chọn BST">
-            {collections.map((c) => (
+            {collections
+            .filter((c) => c.status === "Active")
+            .map((c) => (
               <Select.Option key={c.collectionId} value={c.collectionId}>
                 {c.name}
               </Select.Option>
