@@ -20,5 +20,7 @@ const URL = {
   ManagePayment: "/admin/manage/paymentTransactions",
   AboutPage: "/about",
   ProductStoryPage: "/products/story",
+  ProductStoryDetailPage: "/products/story/:id",
+
 }
 export default URL;

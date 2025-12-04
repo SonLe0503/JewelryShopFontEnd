@@ -119,20 +119,31 @@ const Detail = () => {
         <div className="flex md:flex-col gap-4 items-center justify-center">
           {images.map((img, idx) => {
             const src = img?.startsWith("http") ? img : `${BASE_URL}${img}`;
+            const isSelected = selectedImage === src;
+
             return (
-              <img
+              <div
                 key={idx}
-                src={src}
-                alt={`thumb-${idx}`}
+                className="relative w-20 h-20 rounded-md overflow-hidden cursor-pointer group"
                 onClick={() => setSelectedImage(src)}
-                className={`w-20 h-20 object-cover rounded-md border cursor-pointer transition-transform duration-200 ${selectedImage === src
-                  ? "border-black scale-105"
-                  : "border-gray-200 hover:scale-105"
-                  }`}
-              />
+              >
+                <img
+                  src={src}
+                  alt={`thumb-${idx}`}
+                  className={`w-full h-full object-cover transition-all duration-300 
+            ${isSelected ? "scale-110" : "group-hover:scale-105"}`}
+                />
+
+                {/* Overlay */}
+                <div
+                  className={`absolute inset-0 transition-all duration-300 
+            ${isSelected ? "bg-black/30" : "bg-black/0 group-hover:bg-black/20"}`}
+                ></div>
+              </div>
             );
           })}
         </div>
+
 
         {/* 📸 Ảnh chính lớn */}
         <div className="flex items-center justify-center">
@@ -150,11 +161,17 @@ const Detail = () => {
                   : null);
 
             return mainImage ? (
-              <img
-                src={mainImage}
-                alt="main"
-                className="w-full max-h-[600px] object-contain rounded-lg shadow"
-              />
+              <div className="relative flex items-center justify-center rounded-xl overflow-hidden group">
+                <img
+                  src={mainImage}
+                  alt="main"
+                  className="w-full max-h-[600px] object-contain transition-transform duration-500 group-hover:scale-105"
+                />
+
+                {/* Overlay hover – giống ProductStory */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-500"></div>
+              </div>
+
             ) : (
               <div className="w-full h-[500px] bg-gray-100 flex items-center justify-center text-gray-500 rounded-lg">
                 Không có hình ảnh

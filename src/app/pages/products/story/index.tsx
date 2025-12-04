@@ -2,8 +2,10 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { actionGetAllProducts, selectProducts } from "../../../../store/productSlide";
 import { BASE_URL } from "../../../../utils/app";
-
+import { useNavigate } from "react-router-dom";
+import URL from "../../../../constrants/url";
 const ProductStoryPage = () => {
+    const navigate = useNavigate();
     const dispatch = useDispatch<any>();
     const products = useSelector(selectProducts);
 
@@ -11,7 +13,7 @@ const ProductStoryPage = () => {
         dispatch(actionGetAllProducts());
     }, [dispatch]);
 
-    const storyProducts = products.filter((p) => p.story && p.story.trim() !== "");
+    // const storyProducts = products.filter((p) => p.story && p.story.trim() !== "");
 
     return (
         <div className="w-full bg-white">
@@ -37,46 +39,48 @@ const ProductStoryPage = () => {
 
 
             {/* Story Sections */}
-            <div className="max-w-6xl mx-auto px-4 space-y-24 py-10">
-                {storyProducts.map((item, index) => (
-                    <div
-                        key={item.productId}
-                        className={`flex flex-col md:flex-row items-center gap-10 
-        ${index % 2 === 1 ? "md:flex-row-reverse" : ""}`}
-                    >
-                        {/* Image with overlay */}
-                        <div className="flex md:w-1/2 relative group overflow-hidden rounded-3xl shadow-2xl">
+            {/* Product Grid */}
+            <div className="max-w-6xl mx-auto px-4 py-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+                    {products.map((item) => (
+                        <div
+                            key={item.productId}
+                            className="relative rounded-3xl overflow-hidden shadow-2xl group"
+                        >
+                            {/* Ảnh sản phẩm */}
                             <img
                                 src={`${BASE_URL}${item.imageUrl}`}
                                 alt={item.name}
-                                className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105 brightness-90 contrast-105"
+                                className="w-full h-80 object-cover transform transition-transform duration-500 group-hover:scale-105"
                             />
 
-                            {/* Gradient overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                            {/* Overlay tối nhẹ */}
+                            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-all"></div>
 
-                            {/* Product name */}
-                            <h2 className="absolute bottom-6 left-0 right-0 text-center text-white text-2xl md:text-3xl font-light drop-shadow-lg">
+                            {/* Tên sản phẩm */}
+                            <h2 className="absolute bottom-4 left-0 w-full text-center text-white text-xl font-light drop-shadow-lg">
                                 {item.name}
                             </h2>
 
+                            {/* Nút trong ảnh */}
+                            {item.story && item.story.trim() !== "" ? (
+                                <button className="absolute top-4 right-4 bg-white/90 text-black px-4 py-2 rounded-full text-xs font-medium hover:bg-white transition-all shadow-md"
+                                onClick={() => navigate(`${URL.ProductStoryDetailPage.replace(":id", String(item.productId))}`)}
+                                >
+                                    View Story
+                                </button>
+                            ) : (
+                                <span className="absolute top-4 right-4 bg-gray-300/80 text-gray-700 px-4 py-2 rounded-full text-xs font-medium shadow-md">
+                                    Coming Soon…
+                                </span>
+                            )}
                         </div>
-
-                        {/* Story Content */}
-                        <div className="md:w-1/2 space-y-4">
-                            <p className="text-gray-700 font-light leading-relaxed text-lg">
-                                {item.story}
-                            </p>
-
-                            <button className="mt-4 px-6 py-3 border-none text-black rounded-full 
-    flex items-center gap-2 hover:bg-black hover:text-white transition-all duration-300 text-sm tracking-wide">
-                                Xem chi tiết sản phẩm <span className="transform transition-transform duration-300 group-hover:translate-x-1">→</span>
-                            </button>
-
-                        </div>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
+
+
+
 
         </div>
     );

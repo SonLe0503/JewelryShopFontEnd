@@ -27,6 +27,7 @@ const ForgotPassword = lazy(() => import("../app/pages/login/ForgotPassword"))
 const Dashboard = lazy(() => import("../app/pages/admin/dashboard"))
 const AboutPage = lazy(() => import("../app/pages/about"))
 const ProductStoryPage = lazy(() => import("../app/pages/products/story"))
+const ProductStoryDetailPage = lazy(() => import("../app/pages/products/story/StoryDetail"))
 const shareResourceItem = [
   {
     key: URL.Register,
@@ -99,7 +100,13 @@ const shareResourceItem = [
     element: <ProductStoryPage/>,
     layout: DEFAULT_LAYOUT,
     private: false,
-  }
+  },
+  {
+    key: URL.ProductStoryDetailPage,
+    element: <ProductStoryDetailPage/>,
+    layout: DEFAULT_LAYOUT,
+    private: false,
+  },
 ];
 const privateResourceItem = [
   {

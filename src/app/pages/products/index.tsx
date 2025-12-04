@@ -124,7 +124,7 @@ const Product = () => {
         {visibleProducts.map((item) => (
           <div
             key={item.productId}
-            className="bg-white rounded-lg shadow-[0_3px_10px_rgb(0,0,0,0.2)] hover:shadow-2xl transition overflow-hidden"
+            className="bg-white rounded-lg overflow-hidden shadow-lg hover:scale-105 transition-transform"
           >
             <div
               className="relative cursor-pointer"
@@ -135,6 +135,7 @@ const Product = () => {
                 alt={item.name}
                 className="w-full h-60 object-cover"
               />
+              
               {item.stockQuantity === 0 && (
                 <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center text-gray-500 text-sm">
                   Hết hàng

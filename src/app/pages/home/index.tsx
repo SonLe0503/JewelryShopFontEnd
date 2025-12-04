@@ -131,15 +131,30 @@ const Home = () => {
         ) : (
           <div className="grid md:grid-cols-2 gap-6">
             {/* Banner bên trái */}
-            <div className="relative h-[400px] bg-cover bg-center rounded-lg overflow-hidden"
-              style={{ backgroundImage: `url(${bannerhome2})` }}>
+            <div className="relative h-[400px] rounded-lg overflow-hidden group">
+              <div
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+                style={{ backgroundImage: `url(${bannerhome2})` }}
+              ></div>
+
+              {/* Overlay */}
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+              {/* Text */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col items-center justify-end text-white text-center p-6">
                 <h2 className="text-3xl font-light mb-2">Denim Everyday</h2>
-                <p className="mb-4 font-light text-[14px]">Những mẫu jean thời thượng cho cuộc sống năng động</p>
-                <Button className="!bg-white !text-black hover:!bg-black hover:!text-white !border-none font-light" onClick={() => navigate(URL.Product)}>Khám phá ngay</Button>
+                <p className="mb-4 font-light text-[14px]">
+                  Những mẫu jean thời thượng cho cuộc sống năng động
+                </p>
+                <Button
+                  className="!bg-white !text-black hover:!bg-black hover:!text-white !border-none font-light"
+                  onClick={() => navigate(URL.Product)}
+                >
+                  Khám phá ngay
+                </Button>
               </div>
-
             </div>
+
 
             {/* Sản phẩm bên phải */}
             <div className="grid grid-cols-2 gap-4">

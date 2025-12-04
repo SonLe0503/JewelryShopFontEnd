@@ -42,7 +42,7 @@ const ChatBar = () => {
     // Kết nối SignalR
     useEffect(() => {
         const conn = new HubConnectionBuilder()
-            .withUrl("https://hijean.io.vn/chatHub")
+            .withUrl(`${BASE_URL}/chatHub`)
             .withAutomaticReconnect()
             .build();
 

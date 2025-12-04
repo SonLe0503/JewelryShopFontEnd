@@ -151,12 +151,15 @@ const slice = createSlice({
             })
 
             // Send message
-            .addCase(actionSendMessage.fulfilled, (state, action) => {
-                state.messages.push(action.payload);
-            })
+            // .addCase(actionSendMessage.fulfilled, (state, action) => {
+            //     state.messages.push(action.payload);
+            // })
             .addCase(actionGetMessagesByRoomId.fulfilled, (state, action) => {
-                state.messages = action.payload; // Ghi đè toàn bộ tin nhắn từ DB
+                if (state.messages.length === 0) {
+                    state.messages = action.payload;
+                }
             })
+
     },
 });
 

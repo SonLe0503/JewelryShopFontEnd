@@ -6,6 +6,7 @@ import { actionGetAllUsers, selectInfoLogin, selectUsers } from "../../../store/
 import { HubConnectionBuilder } from "@microsoft/signalr";
 import chat1 from '../../../assets/images/chat1.png';
 import { BASE_URL } from "../../../utils/app";
+import MessageBubble from "./MessageBubble";
 
 const ChatWidget = () => {
     const id = useSelector(selectInfoLogin)?.userId;
@@ -21,6 +22,7 @@ const ChatWidget = () => {
     const adminAvatar = `${BASE_URL}${adminUser?.avatar}` || chat1;
 
 
+
     // Ref để auto scroll
     const messageEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -29,6 +31,7 @@ const ChatWidget = () => {
             messageEndRef.current.scrollIntoView({ behavior: "smooth" });
         }
     };
+
 
     // Auto scroll khi messages thay đổi
     useEffect(() => {
@@ -39,7 +42,7 @@ const ChatWidget = () => {
     // 🔌 Khởi tạo SignalR
     useEffect(() => {
         const connect = new HubConnectionBuilder()
-            .withUrl("https://hijean.io.vn/chatHub", {
+            .withUrl(`${BASE_URL}/chatHub`, {
                 withCredentials: true
             })
             .withAutomaticReconnect()
@@ -141,83 +144,16 @@ const ChatWidget = () => {
                             scrollbarColor: "#4b4b4b transparent"
                         }}
                     >
-                        {messages.map((m, index) => {
-                            const isMe = m.senderId === userId;
-
-                            const prev = messages[index - 1];
-                            const next = messages[index + 1];
-
-                            const isPrevSame = prev && prev.senderId === m.senderId;
-                            const isNextSame = next && next.senderId === m.senderId;
-
-                            const isFirst = !isPrevSame;
-                            const isLast = !isNextSame;
-
-                            // Bong bóng đúng style Messenger
-                            let bubbleClass = "";
-
-                            if (isMe) {
-                                if (isFirst && isLast) {
-                                    bubbleClass = "rounded-2xl rounded-br-none"; // 1 tin duy nhất
-                                } else if (isFirst) {
-                                    bubbleClass = "rounded-2xl rounded-br-none rounded-b-none"; // đầu cụm
-                                } else if (isLast) {
-                                    bubbleClass = "rounded-2xl rounded-tr-none"; // cuối cụm
-                                } else {
-                                    bubbleClass = "rounded-2xl rounded-tr-none rounded-br-none"; // giữa cụm
-                                }
-                            } else {
-                                if (isFirst && isLast) {
-                                    bubbleClass = "rounded-2xl rounded-bl-none";
-                                } else if (isFirst) {
-                                    bubbleClass = "rounded-2xl rounded-bl-none rounded-b-none";
-                                } else if (isLast) {
-                                    bubbleClass = "rounded-2xl rounded-tl-none";
-                                } else {
-                                    bubbleClass = "rounded-2xl rounded-tl-none rounded-bl-none";
-                                }
-                            }
-
-                            // Màu nền giống Messenger 100%
-                            const bgColor = isMe
-                                ? "bg-gradient-to-r from-[#8A3FFC] to-[#6B5BFF]"
-                                : "bg-[#3E3E3E]";
-
-                            return (
-                                <div
-                                    key={m.messageId}
-                                    className={`flex w-full ${isMe ? "justify-end" : "justify-start"}`}
-                                    style={{ marginTop: isFirst ? "8px" : "2px" }} // giống Messenger
-                                >
-                                    {/* Avatar giống Messenger: chỉ hiện ở tin cuối cụm của người khác */}
-                                    {!isMe && (
-                                        isLast ? (
-                                            <img
-                                                src={adminAvatar}
-                                                className="w-7 h-7 rounded-full mr-2 self-end"
-                                                alt="avatar"
-                                            />
-                                        ) : (
-                                            // Placeholder — chiếm đúng vị trí avatar để tránh lệch dòng
-                                            <div className="w-7 h-7 mr-2"></div>
-                                        )
-                                    )}
-
-                                    <div
-                                        className={`
-                    px-4 py-2 text-sm max-w-[75%]
-                    text-white shadow-sm transition-all hover:brightness-110
-                    ${bgColor} ${bubbleClass}
-                `}
-                                    >
-                                        {m.messageText}
-                                    </div>
-
-                                    {/* Avatar của bạn — Messenger KHÔNG hiển thị avatar cho chính mình */}
-                                    {/* {isMe && isLast && <div className="w-7"></div>} */}
-                                </div>
-                            );
-                        })}
+                        {messages.map((m, index) => (
+                            <MessageBubble
+                                key={m.messageId}
+                                m={m}
+                                index={index}
+                                messages={messages}
+                                userId={userId}
+                                adminAvatar={adminAvatar}
+                            />
+                        ))}
 
 
 
