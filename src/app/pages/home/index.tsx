@@ -223,7 +223,7 @@ const Home = () => {
                     alt={col.name}
                     className="w-full h-[300px] object-cover"
                   />
-                  <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-white text-center p-4">
+                  <div className="absolute inset-0 bg-black/10 flex flex-col items-center justify-center text-white text-center p-4">
                     <h3 className="text-lg font-light mb-2">{col.name}</h3>
                     <p className="text-sm font-light opacity-90">{col.description}</p>
                   </div>
