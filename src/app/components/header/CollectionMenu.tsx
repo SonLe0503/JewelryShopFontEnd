@@ -16,7 +16,9 @@ const CollectionMenu = ({
 
   return (
     <div className="bg-white border-t border-gray-200 shadow-md mt-[-1px] rounded-b-lg w-60">
-      {collections.map((c) => (
+      {collections
+      .filter((c) => c.status === "Active")
+      .map((c) => (
         <div
           key={c.collectionId}
           onClick={() => handleClick(c.collectionId)}
