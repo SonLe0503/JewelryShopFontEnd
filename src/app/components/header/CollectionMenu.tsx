@@ -12,7 +12,7 @@ const CollectionMenu = ({
 
   const handleClick = (id: number) => {
     navigate(`${URL.Product}?collectionId=${id}`);
-    onClose(); // 🔹 Đóng dropdown khi chọn xong
+    onClose(); 
   };
 
   return (

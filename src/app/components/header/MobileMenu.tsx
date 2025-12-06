@@ -95,9 +95,9 @@ const MobileMenu = ({ collections, open, onClose }: MobileMenuProps) => {
                   .filter((c) => c.status === "Active")
                   .map((c, index) => (
                     <div
-                      key={c.id ?? index}
+                      key={c.collectionId ?? index}
                       onClick={() => {
-                        navigate(`${URL.Product}?collectionId=${c.id}`);
+                        navigate(`${URL.Product}?collectionId=${c.collectionId}`);
                         onClose();
                       }}
                       className="block px-2 py-2 text-gray-700 !text-gray-700 text-sm font-normal rounded cursor-pointer hover:bg-gray-50 hover:text-black transition-colors"
