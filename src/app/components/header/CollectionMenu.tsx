@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import URL from "../../../constrants/url";
 
 const CollectionMenu = ({
   collections,
@@ -10,7 +11,7 @@ const CollectionMenu = ({
   const navigate = useNavigate();
 
   const handleClick = (id: number) => {
-    navigate(`/products?collectionId=${id}`);
+    navigate(`${URL.Product}?collectionId=${id}`);
     onClose(); // 🔹 Đóng dropdown khi chọn xong
   };
 

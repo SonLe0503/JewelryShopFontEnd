@@ -93,7 +93,7 @@ const Product = () => {
 
   useEffect(() => {
     if (collectionId) {
-      setFilter("All");
+      setFilter("Tất cả");
     }
     if (categoryQuery) {
       setFilter(categoryQuery);
